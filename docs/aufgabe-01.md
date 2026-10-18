@@ -82,3 +82,13 @@ Zusätzliche Übergabegrenze: Eine Kopie des Berichts im vom Chat vorgesehenen
 in dieser Umgebung schreibgeschützt ist. Der vollständige Bericht liegt deshalb
 versioniert unter `docs/aufgabe-01.md`. Der hängende mobile Chromium-Prozess wurde
 ebenfalls beendet. Diese Grenze betrifft ausschließlich die zusätzliche Berichtskopie.
+
+
+## Nachtrag: Abschließende visuelle Prüfung
+
+Die spätere Browserprüfung war mit Playwright und Chromium erfolgreich möglich.
+Die tatsächlichen Desktop-/Mobile-Ergebnisse, Breitenmessungen, Screenshots und
+der offene Favicon-404-Befund sind im
+[visuellen Prüfbericht](visuelle-pruefung-aufgabe-01.md) dokumentiert.
+Die oben beschriebene Browser-Einschränkung bleibt als historisches Ergebnis
+des ersten Durchlaufs erhalten. Der Anwendungscode wurde nicht geändert.

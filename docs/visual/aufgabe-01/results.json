@@ -1,0 +1,153 @@
+{
+  "timestampUTC": "2026-10-18T12:18:29.392718+00:00",
+  "url": "http://127.0.0.1:5174/",
+  "browser": "Chromium 151.0.7922.173",
+  "results": [
+    {
+      "case": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "mobileEmulation": false,
+      "httpStatus": 200,
+      "title": "Lernplaner",
+      "heading": "Lernplaner",
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "horizontalOverflow": false,
+      "mainGridColumns": "640px 400px",
+      "headerDirection": "row",
+      "overflowingElements": [],
+      "firebaseStatus": "Firebase-Konfiguration noch nicht hinterlegt.",
+      "pageErrors": [],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      ],
+      "failedRequests": [],
+      "screenshot": "desktop.png"
+    },
+    {
+      "case": "tablet",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "mobileEmulation": false,
+      "httpStatus": 200,
+      "title": "Lernplaner",
+      "heading": "Lernplaner",
+      "innerWidth": 768,
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "bodyScrollWidth": 768,
+      "horizontalOverflow": false,
+      "mainGridColumns": "374.141px 233.859px",
+      "headerDirection": "row",
+      "overflowingElements": [],
+      "firebaseStatus": "Firebase-Konfiguration noch nicht hinterlegt.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "screenshot": "tablet.png"
+    },
+    {
+      "case": "breakpoint-wide",
+      "viewport": {
+        "width": 701,
+        "height": 900
+      },
+      "mobileEmulation": false,
+      "httpStatus": 200,
+      "title": "Lernplaner",
+      "heading": "Lernplaner",
+      "innerWidth": 701,
+      "clientWidth": 701,
+      "scrollWidth": 701,
+      "bodyScrollWidth": 701,
+      "horizontalOverflow": false,
+      "mainGridColumns": "307.266px 233.734px",
+      "headerDirection": "row",
+      "overflowingElements": [],
+      "firebaseStatus": "Firebase-Konfiguration noch nicht hinterlegt.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "screenshot": "breakpoint-wide.png"
+    },
+    {
+      "case": "breakpoint-narrow",
+      "viewport": {
+        "width": 700,
+        "height": 900
+      },
+      "mobileEmulation": false,
+      "httpStatus": 200,
+      "title": "Lernplaner",
+      "heading": "Lernplaner",
+      "innerWidth": 700,
+      "clientWidth": 700,
+      "scrollWidth": 700,
+      "bodyScrollWidth": 700,
+      "horizontalOverflow": false,
+      "mainGridColumns": "652px",
+      "headerDirection": "column",
+      "overflowingElements": [],
+      "firebaseStatus": "Firebase-Konfiguration noch nicht hinterlegt.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "screenshot": "breakpoint-narrow.png"
+    },
+    {
+      "case": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mobileEmulation": true,
+      "httpStatus": 200,
+      "title": "Lernplaner",
+      "heading": "Lernplaner",
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "horizontalOverflow": false,
+      "mainGridColumns": "342px",
+      "headerDirection": "column",
+      "overflowingElements": [],
+      "firebaseStatus": "Firebase-Konfiguration noch nicht hinterlegt.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "screenshot": "mobile.png"
+    },
+    {
+      "case": "mobile-small",
+      "viewport": {
+        "width": 320,
+        "height": 812
+      },
+      "mobileEmulation": true,
+      "httpStatus": 200,
+      "title": "Lernplaner",
+      "heading": "Lernplaner",
+      "innerWidth": 320,
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "bodyScrollWidth": 320,
+      "horizontalOverflow": false,
+      "mainGridColumns": "272px",
+      "headerDirection": "column",
+      "overflowingElements": [],
+      "firebaseStatus": "Firebase-Konfiguration noch nicht hinterlegt.",
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failedRequests": [],
+      "screenshot": "mobile-small.png"
+    }
+  ]
+}
