@@ -5,8 +5,10 @@
 Datum: 18.10.2026. Beginn: 15:03:25 CEST.
 Technische Bearbeitung und Dokumentation bis 15:20:14 CEST:
 **16 Minuten 49 Sekunden verstrichene Zeit**. Parallele Prüfungen sind darin
-enthalten, nicht als zusätzliche Arbeitszeit addiert. Die anschließende GitHub-Übergabe
-ist in diesem Zwischen-Endzeitpunkt noch nicht enthalten.
+enthalten, nicht als zusätzliche Arbeitszeit addiert. Bis zur erfolgreichen Anlage
+des Draft Pull Requests um 15:23:31 CEST betrug die Dauer inklusive GitHub-Übergabe
+**20 Minuten 6 Sekunden**. Die abschließende reine Ergänzung dieses Übergabestatus
+und dessen Dokumentationscommit erfolgte danach.
 
 ## Auftrag und Ausgangspunkt
 
@@ -274,6 +276,15 @@ Belege: keine echten Zugangsdaten, festen Demo-Anmeldepasswörter,
 Service-Account-Schlüssel oder temporären Figma-Asset-URLs gefunden.
 Die App-Dateien verwenden ausschließlich lokale Grafik- und Schriftressourcen.
 
-Der Stand wird auf dem separaten Branch committed und als Draft gegen `main`
-zur Prüfung übergeben. Die tatsächlichen GitHub-Links und der Commit stehen
-im abschließenden Ergebnisbericht im Chat. Kein Merge oder Deployment.
+Implementierungscommit: `4b5d936`
+(`feat: add Firebase email authentication and protected dashboard`).
+`git add …`, `git diff --cached --check`, `git commit -m …` und
+`git push -u origin feat/aufgabe-02-firebase-auth` waren erfolgreich.
+
+- [Branch](https://github.com/FatimaKhaliil/codex-learning-planner/tree/feat/aufgabe-02-firebase-auth)
+- [Draft Pull Request #2 – Aufgabe 02 – Firebase Authentication](https://github.com/FatimaKhaliil/codex-learning-planner/pull/2)
+
+GitHub bestätigte den PR als offen, Draft und nicht gemergt; Ziel `main` bei
+`d223d43`. Der Arbeitsbaum war nach dem Implementierungscommit sauber. Dieser
+Übergabestatus wird separat als reine Dokumentation committed und gepusht.
+Keine weiteren Codeänderungen, kein Merge und kein Deployment.
