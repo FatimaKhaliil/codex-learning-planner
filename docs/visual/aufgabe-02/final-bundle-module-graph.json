@@ -1,0 +1,58 @@
+{
+  "mode": "production",
+  "write": false,
+  "generatedChunkCount": 1,
+  "generatedAssetCount": 7,
+  "includedModuleCount": 35,
+  "transformedModuleCount": 34,
+  "included": {
+    "firebaseApp": {
+      "count": 2,
+      "paths": [
+        "/workspace/codex-learning-planner/node_modules/@firebase/app/dist/esm/index.esm.js",
+        "/workspace/codex-learning-planner/node_modules/firebase/app/dist/esm/index.esm.js"
+      ]
+    },
+    "firebaseAuth": {
+      "count": 3,
+      "paths": [
+        "/workspace/codex-learning-planner/node_modules/@firebase/auth/dist/esm/index-LY22yodV.js",
+        "/workspace/codex-learning-planner/node_modules/@firebase/auth/dist/esm/index.js",
+        "/workspace/codex-learning-planner/node_modules/firebase/auth/dist/esm/index.esm.js"
+      ]
+    },
+    "firestore": {
+      "count": 0,
+      "paths": []
+    },
+    "grpc": {
+      "count": 0,
+      "paths": []
+    }
+  },
+  "transformed": {
+    "firebaseApp": {
+      "count": 2,
+      "paths": [
+        "/workspace/codex-learning-planner/node_modules/@firebase/app/dist/esm/index.esm.js",
+        "/workspace/codex-learning-planner/node_modules/firebase/app/dist/esm/index.esm.js"
+      ]
+    },
+    "firebaseAuth": {
+      "count": 3,
+      "paths": [
+        "/workspace/codex-learning-planner/node_modules/@firebase/auth/dist/esm/index-LY22yodV.js",
+        "/workspace/codex-learning-planner/node_modules/@firebase/auth/dist/esm/index.js",
+        "/workspace/codex-learning-planner/node_modules/firebase/auth/dist/esm/index.esm.js"
+      ]
+    },
+    "firestore": {
+      "count": 0,
+      "paths": []
+    },
+    "grpc": {
+      "count": 0,
+      "paths": []
+    }
+  }
+}

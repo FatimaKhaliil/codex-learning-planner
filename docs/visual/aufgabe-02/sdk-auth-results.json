@@ -1,0 +1,56 @@
+{
+  "environment": "local Firebase Auth emulator only",
+  "results": [
+    {
+      "check": "initial onAuthStateChanged is signed out",
+      "result": "passed"
+    },
+    {
+      "check": "Firebase SDK registration",
+      "result": "passed"
+    },
+    {
+      "check": "duplicate registration rejected",
+      "result": "passed"
+    },
+    {
+      "check": "sign-out and auth observer",
+      "result": "passed"
+    },
+    {
+      "check": "incorrect password rejected",
+      "result": "passed"
+    },
+    {
+      "check": "Firebase SDK sign-in and auth observer",
+      "result": "passed"
+    },
+    {
+      "check": "password reset request accepted by emulator",
+      "result": "passed"
+    },
+    {
+      "check": "emulator generated reset action; SDK verifies and changes password",
+      "result": "passed"
+    },
+    {
+      "check": "old password rejected after reset",
+      "result": "passed"
+    },
+    {
+      "check": "new password accepted after reset",
+      "result": "passed"
+    },
+    {
+      "check": "onAuthStateChanged tracked signed-in and signed-out transitions",
+      "result": "passed"
+    },
+    {
+      "check": "temporary emulator user deleted",
+      "result": "passed"
+    }
+  ],
+  "total": 12,
+  "passed": 12,
+  "scope": "No production Firebase calls or external email delivery"
+}

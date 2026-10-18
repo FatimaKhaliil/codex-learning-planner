@@ -1,0 +1,12 @@
+{
+  "checks": [
+    {
+      "check": "Missing configuration blocks Firebase actions without crash or dashboard access",
+      "status": "passed"
+    },
+    {
+      "check": "Skip link focuses main content without changing the auth form",
+      "status": "passed"
+    }
+  ]
+}

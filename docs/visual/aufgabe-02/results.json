@@ -1,0 +1,555 @@
+{
+  "browser": "Chromium",
+  "scope": "Real Firebase SDK against local Auth Emulator; no production email delivery",
+  "checks": [
+    {
+      "check": "Unauthenticated dashboard is protected",
+      "status": "passed"
+    },
+    {
+      "check": "Required fields and focus on first invalid field",
+      "status": "passed"
+    },
+    {
+      "check": "Invalid email and password visibility controls",
+      "status": "passed"
+    },
+    {
+      "check": "Registration rejects short and mismatching passwords",
+      "status": "passed"
+    },
+    {
+      "check": "Real UI registration, loading state, and protected dashboard",
+      "status": "passed"
+    },
+    {
+      "check": "Firebase session restored after reload",
+      "status": "passed"
+    },
+    {
+      "check": "Logout removes protected content in both open tabs",
+      "status": "passed"
+    },
+    {
+      "check": "Wrong password shows German error and denies dashboard",
+      "status": "passed"
+    },
+    {
+      "check": "Duplicate registration shows actionable error",
+      "status": "passed"
+    },
+    {
+      "check": "Real login and logout; mobile dashboard has no horizontal overflow",
+      "status": "passed"
+    },
+    {
+      "check": "UI reset requests a real emulator reset action",
+      "status": "passed"
+    },
+    {
+      "check": "Unknown reset address gets the same neutral confirmation",
+      "status": "passed"
+    },
+    {
+      "check": "Network failure gives actionable error without false success",
+      "status": "passed"
+    },
+    {
+      "check": "Nine responsive views have no horizontal overflow and all local image assets load",
+      "status": "passed"
+    },
+    {
+      "check": "No uncaught application JavaScript errors during flows",
+      "status": "passed"
+    }
+  ],
+  "visual": [
+    {
+      "mode": "login",
+      "viewport": {
+        "width": 1440,
+        "height": 800
+      },
+      "mobileEmulation": false,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": true
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": true
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "register",
+      "viewport": {
+        "width": 1440,
+        "height": 800
+      },
+      "mobileEmulation": false,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": true
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": true
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "reset",
+      "viewport": {
+        "width": 1440,
+        "height": 800
+      },
+      "mobileEmulation": false,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": true
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": true
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        }
+      ]
+    },
+    {
+      "mode": "login",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mobileEmulation": true,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": false
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "register",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mobileEmulation": true,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": false
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "reset",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "mobileEmulation": true,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": false
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "login",
+      "viewport": {
+        "width": 320,
+        "height": 812
+      },
+      "mobileEmulation": true,
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": false
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "register",
+      "viewport": {
+        "width": 320,
+        "height": 812
+      },
+      "mobileEmulation": true,
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": false
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        },
+        {
+          "src": "/assets/eye.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "mode": "reset",
+      "viewport": {
+        "width": 320,
+        "height": 812
+      },
+      "mobileEmulation": true,
+      "clientWidth": 320,
+      "scrollWidth": 320,
+      "assets": [
+        {
+          "src": "/assets/contour-circle.png",
+          "loaded": true,
+          "width": 270,
+          "height": 360,
+          "visible": false
+        },
+        {
+          "src": "/assets/decorative-circle.png",
+          "loaded": true,
+          "width": 200,
+          "height": 150,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/check.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": false
+        },
+        {
+          "src": "/assets/notebook.png",
+          "loaded": true,
+          "width": 20,
+          "height": 20,
+          "visible": true
+        }
+      ]
+    }
+  ],
+  "pageErrors": []
+}
