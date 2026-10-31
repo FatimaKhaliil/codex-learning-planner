@@ -216,3 +216,12 @@ können nach Neuladen sichtbar werden. Keine Such-/Filter-/Kalender-/Prioritäts
 Ein vollständiger visueller Gleichstand mit sämtlichen Figma-Ansichten und die neuen
 SVG-Assets sind nicht bestätigt. Push und Draft-PR werden nur bei funktionierender
 Verbindung versucht; endgültige Commit-/PR-Referenzen stehen im Abschlussbericht.
+
+## Veröffentlichung zur Prüfung
+
+Implementierungscommit: `2567f4cf0cdb475bd2cd93cff03223d577640f54`.
+Branch wurde erfolgreich zu GitHub gepusht. `gh pr create` scheiterte mit
+`Post https://api.github.com/graphql: Forbidden`; der CLI-Aufruf wurde nicht wiederholt.
+Der verfügbare GitHub-Connector konnte den [Draft-PR #3](https://github.com/FatimaKhaliil/codex-learning-planner/pull/3)
+erfolgreich erstellen. Basis: main bei `896794c7`; kein Merge. Der PR benennt die
+offenen Emulator-, Audit- und Designpunkte ausdrücklich.
