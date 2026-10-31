@@ -1,0 +1,8 @@
+{
+  "total": 52,
+  "firestore": [
+    "/workspace/codex-learning-planner/node_modules/@firebase/firestore/dist/common-D9UYuXJO.esm.js",
+    "/workspace/codex-learning-planner/node_modules/@firebase/firestore/dist/index.esm.js"
+  ],
+  "grpc": []
+}

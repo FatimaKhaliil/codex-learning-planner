@@ -7,6 +7,13 @@
     "ui": {
       "enabled": false
     },
-    "singleProjectMode": true
+    "singleProjectMode": true,
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8081
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

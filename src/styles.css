@@ -115,3 +115,44 @@ form .primary-button { margin-top: 22px; }
   .dashboard-content > h2 { font-size: 26px; }
 }
 @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+
+/* Aufgabe 03: shared form tokens and responsive task cards. */
+textarea, select { font: inherit; color: #263b34; background: #fcfdfc; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; min-height: 48px; max-width: 100%; }
+textarea { width: 100%; min-height: 112px; resize: vertical; font-size: 14px; }
+textarea[aria-invalid=true] { border-color: #bf4b4b; }
+.tasks-panel { margin-top: 32px; display: flex; flex-direction: column; gap: 20px; }
+.tasks-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.tasks-heading h2 { font-size: 22px; font-weight: 500; }
+.tasks-heading p, .task-form-card > p { color: var(--muted); font-size: 13px; line-height: 1.6; margin-top: 8px; }
+.add-task { width: auto; }
+.task-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.task-card { background: white; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 5px 18px #18382b05; padding: 20px; display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+.subject-badge { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; background: #e7f1fb; color: #4e88af; border-radius: 10px; font-size: 14px; font-weight: 700; }
+.task-copy { flex: 1; min-width: 150px; overflow-wrap: anywhere; }
+.task-copy h3 { font-size: 15px; line-height: 1.4; margin: 0 0 8px; }
+.task-copy p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.task-copy .task-description { white-space: pre-wrap; margin-top: 8px; color: #263b34; }
+.task-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.task-status { font-size: 12px; }
+.task-status.open { background: #f7f2e2; color: #725b24; }
+.task-status.in-progress { background: #e7f1fb; color: #326080; }
+.task-status.done { background: #e8f7ef; color: #226448; }
+.danger { color: #963a3a; border-color: #f0d5d5; }
+.task-empty { background: white; border: 1px dashed var(--border); padding: 32px; border-radius: 14px; text-align: center; line-height: 1.6; }
+.task-empty h3 { margin-top: 0; }
+.task-form-card { width: 600px; max-width: 100%; background: white; border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.task-form-card h2 { font-size: 19px; }
+.task-form-card form, .task-form-card > .notice { margin-top: 20px; }
+.task-cancel { width: 100%; margin-top: 16px; }
+.delete-dialog { color: #263b34; border: 1px solid var(--border); border-radius: 14px; padding: 24px; width: 480px; max-width: calc(100% - 32px); overflow-wrap: anywhere; }
+.delete-dialog::backdrop { background: #142f2780; }
+.delete-dialog h2 { font-size: 22px; }
+.delete-dialog p { margin: 16px 0; line-height: 1.6; font-size: 14px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .task-actions { width: 100%; }
+  .task-actions > * { flex: 1; }
+  .task-form-card { padding: 22px; }
+  .task-card { padding: 18px; }
+  .add-task { width: 100%; }
+}
