@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { AuthProvider, useAuth } from './auth/AuthProvider'
 import { validateAuthForm } from './auth/validation'
 import { authErrorMessage } from './auth/errors'
+const TasksPanel = lazy(() => import('./tasks/TasksPanel').then(module => ({ default: module.TasksPanel })))
 
 type View = 'login' | 'register' | 'reset' | 'dashboard'
 type FieldErrors = Partial<Record<'email' | 'password' | 'confirmation', string>>
@@ -167,7 +168,8 @@ function Dashboard() {
     </header>
       <main className="dashboard-content" id="main-content" tabIndex={-1}><h2>Schön, dass du da bist.</h2><p>Dein persönlicher Bereich im Lernplaner.</p>
         <section className="account-card" aria-labelledby="account-title"><h2 id="account-title">Dein Konto</h2><p className="notice success">Du bist angemeldet.</p><dl><dt>E-Mail-Adresse</dt><dd>{user.email}</dd></dl>
-          <p>Die Aufgabenplanung folgt in einem späteren Entwicklungsschritt.</p></section>
+          </section>
+        <Suspense fallback={<p role="status">Aufgabenbereich wird geladen …</p>}><TasksPanel key={user.uid} userId={user.uid} /></Suspense>
         {error && <p className="notice error" role="alert">{error}</p>}
       </main>
     </div>

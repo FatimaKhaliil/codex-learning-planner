@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(userId) { return request.auth != null && request.auth.uid == userId; }
+    function validTask() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['title', 'dueDate', 'description', 'subject', 'status', 'createdAt', 'updatedAt'])
+        && d.keys().hasOnly(['title', 'dueDate', 'description', 'subject', 'status', 'createdAt', 'updatedAt'])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200 && d.title.matches('.*[^\\s].*')
+        && d.description is string && d.description.size() <= 5000
+        && d.subject is string && d.subject.size() <= 100
+        && d.dueDate is string && d.dueDate.matches('[1-9][0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])')
+        && d.status in ['open', 'in-progress', 'done']
+        && d.createdAt is timestamp && d.updatedAt == request.time;
+    }
+    match /users/{userId}/tasks/{taskId} {
+      allow get, list: if owner(userId);
+      allow create: if owner(userId) && validTask() && request.resource.data.createdAt == request.time;
+      allow update: if owner(userId) && validTask() && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if owner(userId);
+    }
+  }
+}
