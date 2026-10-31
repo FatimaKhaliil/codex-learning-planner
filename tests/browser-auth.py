@@ -1,9 +1,9 @@
-import asyncio, json, secrets, uuid
+import asyncio, json, os, secrets, uuid
 from pathlib import Path
 from playwright.async_api import async_playwright, expect
 
-OUT=Path('work/aufgabe-02/browser')
-OUT.mkdir(exist_ok=True)
+OUT=Path('work/aufgabe-04-implementation/auth-browser')
+OUT.mkdir(parents=True,exist_ok=True)
 results=[]
 async def check(name, action):
     await action()
@@ -17,14 +17,16 @@ async def main():
     page=await context.new_page()
     errors=[]
     page.on('pageerror',lambda error: errors.append(str(error)))
-    base='http://127.0.0.1:5175/'
+    base=os.environ.get('AUTH_BROWSER_BASE_URL','http://127.0.0.1:5180/').rstrip('/')+'/'
+    assert base.startswith('http://127.0.0.1:') or base.startswith('http://localhost:'), 'Auth regression must target loopback'
     email='browser-'+str(uuid.uuid4())+'@example.test'
     password=secrets.token_urlsafe(24)
-    await page.goto(base+'#/dashboard',wait_until='networkidle')
-    await expect(page.get_by_role('heading',name='Willkommen zurück')).to_be_visible()
-    await expect(page).to_have_url(base+'#/login')
-    assert await page.get_by_role('heading',name='Dein Konto',exact=True).count()==0
-    results.append({'check':'Unauthenticated dashboard is protected','status':'passed'})
+    for route in ['dashboard','tasks','calendar','profile']:
+      await page.goto(base+'#/'+route,wait_until='networkidle')
+      await expect(page.get_by_role('heading',name='Willkommen zurück')).to_be_visible()
+      await expect(page).to_have_url(base+'#/login')
+      await expect(page.locator('.planner-layout')).to_have_count(0)
+    results.append({'check':'All four authenticated routes are protected','status':'passed'})
     await page.get_by_role('button',name='Anmelden',exact=True).click()
     await expect(page.locator('#email-error')).to_be_visible()
     await expect(page.locator('#password-error')).to_be_visible()
@@ -61,7 +63,7 @@ async def main():
     await page.screenshot(path=str(OUT/'registration-loading.png'),full_page=True)
     await expect(page.get_by_role('heading',name='Deine Übersicht',exact=True)).to_be_visible()
     await expect(page).to_have_url(base+'#/dashboard')
-    await expect(page.locator('dd')).to_have_text(email)
+    await expect(page.locator('.profile-link small')).to_have_text(email)
     await page.unroute('**/accounts:signUp*',delay)
     results.append({'check':'Real UI registration, loading state, and protected dashboard','status':'passed'})
     await page.reload(wait_until='networkidle')
@@ -79,7 +81,7 @@ async def main():
     await page.locator('#password').fill(secrets.token_urlsafe(24))
     await page.get_by_role('button',name='Anmelden',exact=True).click()
     await expect(page.get_by_role('alert')).to_contain_text('stimmen nicht überein')
-    assert await page.get_by_role('heading',name='Dein Konto',exact=True).count()==0
+    await expect(page.locator('.planner-layout')).to_have_count(0)
     results.append({'check':'Wrong password shows German error and denies dashboard','status':'passed'})
     await page.get_by_role('link',name='Jetzt registrieren').click()
     await expect(page.get_by_role('heading',name='Dein Lernplan beginnt hier',exact=True)).to_be_visible()
@@ -99,9 +101,11 @@ async def main():
     await page.set_viewport_size({'width':390,'height':844})
     await page.screenshot(path=str(OUT/'dashboard-mobile.png'),full_page=True)
     assert await page.evaluate('document.documentElement.scrollWidth === document.documentElement.clientWidth')
+    await page.locator('.header-profile').click()
+    await expect(page.get_by_text('Diese Ansicht ist noch nicht implementiert.',exact=True)).to_be_visible()
     await page.get_by_role('button',name='Abmelden',exact=True).click()
     await expect(page.get_by_role('heading',name='Willkommen zurück')).to_be_visible()
-    results.append({'check':'Real login and logout; mobile dashboard has no horizontal overflow','status':'passed'})
+    results.append({'check':'Real login and mobile logout via unfinished profile; no horizontal overflow','status':'passed'})
     await page.get_by_role('link',name='Passwort vergessen?').click()
     await expect(page.get_by_role('heading',name='Passwort zurücksetzen',exact=True)).to_be_visible()
     await page.locator('#email').fill(email)
@@ -138,6 +142,12 @@ async def main():
         visual.append({'mode':mode,'viewport':{'width':w,'height':h},'mobileEmulation':mobile,**metrics})
       await c.close()
     results.append({'check':'Nine responsive views have no horizontal overflow and all local image assets load','status':'passed'})
+    cleanup_login=await context.request.post('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=emulator-only',data={'email':email,'password':password,'returnSecureToken':True})
+    assert cleanup_login.ok
+    credential=await cleanup_login.json()
+    cleanup=await context.request.post('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:delete?key=emulator-only',data={'idToken':credential['idToken']})
+    assert cleanup.ok
+    results.append({'check':'Only this test’s temporary Auth emulator account is deleted','status':'passed'})
     assert not errors, errors
     results.append({'check':'No uncaught application JavaScript errors during flows','status':'passed'})
     await context.close()
