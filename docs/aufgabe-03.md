@@ -9,11 +9,14 @@ Verwendung des veralteten `origin/main`. Der Arbeitsbaum war zuvor sauber.
 
 Die Aufgabenverwaltung ist implementiert und lokal mit TypeScript, Produktionsbuild,
 Unit- und Browser-Komponententests geprüft. Die bestehende Authentication besteht
-SDK- und Browser-Regressionstests. **Firestore-CRUD und die Security Rules sind noch
-nicht gegen den echten Firestore-Emulator verifiziert:** Der Download der benötigten
-Emulator-JAR scheitert in dieser Umgebung. Die entsprechenden Tests sind vorhanden,
-wurden gestartet und sind wegen des fehlenden Emulators fehlgeschlagen. Damit ist
-die vollständige technische Abnahme ausdrücklich noch offen.
+SDK- und Browser-Regressionstests. In der Cloud war die Firestore-Emulatorprüfung
+wegen des fehlgeschlagenen JAR-Downloads blockiert. **Nachtrag vom 31.10.2026:**
+Die Projektverantwortliche bestätigt erfolgreiche manuelle Firebase-Tests sowie alle
+sieben Firestore-Emulator-Integrations- und Sicherheitstestgruppen auf ihrem lokalen
+Windows-Rechner. Dies ist ein berichteter lokaler Testerfolg; die Cloud-Blockade ist
+historisch dokumentiert. Windows-Testlogs und genaue Werkzeugversionen wurden in
+dieser Sitzung nicht unabhängig geprüft. Die npm-Sicherheitsbewertung folgt unten;
+Emulator-Erfolge sind kein Nachweis gegen die Ausnutzbarkeit anderer Bibliothekslücken.
 
 Keine produktiven Security Rules deployt, keine produktiven Firebase-Daten angelegt,
 keine Zugangsdaten hinzugefügt. Kein Merge, keine Prioritätsfunktion und kein
@@ -63,7 +66,7 @@ Statusänderungen schreiben ausschließlich Status und Änderungszeit.
 
 | NFR | Maßnahme / Grenze |
 | --- | --- |
-| Security / Benutzertrennung | UID aus AuthProvider; Rules prüfen request.auth.uid für Lesen/Listen/Schreiben/Löschen. Pflichtfelder, Typen, Größen, Status, erlaubte Schlüssel und unveränderliches createdAt serverseitig geprüft. Fremde Pfade und nicht angemeldete Nutzer werden abgewiesen. Emulator-Nachweis noch offen. |
+| Security / Benutzertrennung | UID aus AuthProvider; Rules prüfen request.auth.uid für Lesen/Listen/Schreiben/Löschen. Pflichtfelder, Typen, Größen, Status, erlaubte Schlüssel und unveränderliches createdAt serverseitig geprüft. Fremde Pfade und nicht angemeldete Nutzer werden abgewiesen. Sieben Emulator-Testgruppen laut Bestätigung der Projektverantwortlichen unter Windows erfolgreich; in dieser Cloud nicht reproduziert. |
 | Performance | 50 Dokumente pro Abfrage, Cursor nach Fälligkeitsdatum und Dokument-ID, keine Offsets und keine Sammlung aller Benutzer. Aufgabenbereich erst nach Anmeldung laden. |
 | Skalierbarkeit | „Weitere Aufgaben laden“ begrenzt einzelne Reads. Benötigt nur die üblichen Single-Field-Indizes; kein Collection-Group-Query. Geladene Seiten bleiben bis zum Neuladen im Speicher. |
 | Zuverlässigkeit | Serverabfragen statt stiller Cache-Fallbacks; Erfolg erst nach Firestore-Bestätigung, wiederholbarer Create, Doppelaktionen gesperrt, ausstehende Requests erklärt. Kein eigener Timeout, der einen möglicherweise noch laufenden Write fälschlich als gescheitert meldet. |
@@ -122,7 +125,7 @@ git ls-remote origin HEAD
 | Auth SDK + echter lokaler Auth-Emulator | 12/12, einschließlich Login/Logout, Registrierung, Reset und Session-Observer |
 | Bestehende Auth-Browserregression | 15/15 Prüfgruppen erfolgreich; keine pageErrors |
 | Aufgaben-Browser-Komponenten | 6/6 Gruppen: Validierung/Fokus, Create/Ladezustand, Status, Edit/Fehler/Retry, mobile Karten, Löschdialog/Abbruch/Fehler/Retry; keine pageErrors |
-| Firestore CRUD + Benutzertrennung | **Blockiert, nicht bestanden**: Emulator-JAR nicht herunterladbar; Test endet mit ECONNREFUSED auf 127.0.0.1:8081 |
+| Firestore CRUD + Benutzertrennung | Cloud-Lauf wegen fehlender JAR blockiert (ECONNREFUSED auf 127.0.0.1:8081). Nachtrag: laut Projektverantwortlicher alle sieben Integrations-/Sicherheitstestgruppen lokal unter Windows erfolgreich; keine unabhängige Logprüfung in dieser Sitzung. |
 | npm Audit | Exit 1: vier bekannte High-Paketmeldungen, nicht behoben |
 | Git-Diff-Whitespace | Erfolgreich |
 | GitHub-Verbindung | ls-remote mit Netzwerkfreigabe erfolgreich; Remote-HEAD entspricht dem Ausgangscommit |
@@ -154,8 +157,9 @@ keine produktiven Credentials. `firebase.json` verweist auf lokale Rules und Por
 9099/8081. Der Firestore-Test prüft das echte Repository inklusive Create/Read/Update/
 Status/Delete, Zeitstempel, idempotenten Create, 51 Dokumente über die Seitengrenze,
 Fremdbenutzerzugriffe (get/list/create/update/delete), anonyme Zugriffe, ungültige
-Felder und Manipulation von Zeitstempeln. Da der Emulator fehlt, sind dies vorhandene
-Testfälle und keine belegten Testerfolge.
+Felder und Manipulation von Zeitstempeln. In der Cloud waren dies wegen des fehlenden Emulators nur vorhandene Testfälle.
+Der spätere erfolgreiche Windows-Lauf aller sieben Gruppen wurde von der
+Projektverantwortlichen bestätigt; Rohprotokolle wurden hier nicht eingesehen.
 
 Für die UI-Regression lief Vite auf Port 5175 (abschließender Auth-Lauf nach
 Neustart auf 5176) mit ausschließlich Demo-Konfiguration
@@ -188,7 +192,7 @@ und beiden lokalen Emulator-URLs. Produktionsbuilds ignorieren die Emulator-URLs
 Compat. Vier High-Paketmeldungen propagieren die bekannten Advisories
 [GHSA-m9gg-hp2v-232j](https://github.com/advisories/GHSA-m9gg-hp2v-232j) und
 [GHSA-f596-whhp-79r4](https://github.com/advisories/GHSA-f596-whhp-79r4).
-Korrektur laut Audit ab gRPC 1.13.6; Firebase verlangt ~1.9.0. Kein `audit fix --force`,
+Korrekturen laut Advisories in gRPC 1.13.6 und 1.14.5; auch 1.14.0–1.14.4 sind betroffen. Firebase verlangt ~1.9.0. Kein `audit fix --force`,
 Override oder inkompatibles SDK-Downgrade ausgeführt.
 
 Der [gemessene Browser-Modulgraph](verification/aufgabe-03/bundle-security.json)
@@ -204,8 +208,10 @@ Zeitaufwand dieser Sitzung: ungefähr 15 Minuten, einschließlich Implementierun
 Tests, Fehlerkorrekturen, Netzwerk-/Emulator-Diagnose und Dokumentation; gerundete
 Sitzungsschätzung, keine separate Zeiterfassungsmessung.
 
-Vor Abnahme sind Firestore-Emulatorstart, Rules-Kompilierung und alle Emulatorfälle
-nachzuholen. Rules prüfen das Datumsformat und Wertebereiche, aber keine vollständige
+Der zuvor offene lokale Emulatorlauf ist laut Bestätigung der Projektverantwortlichen
+unter Windows erfolgreich durchgeführt worden. Für eine unabhängig reproduzierbare
+Abnahme sollten die Testprotokolle mit Commit, Befehlen und Werkzeugversionen
+archiviert werden; eine Wiederholung in dieser Cloud bleibt blockiert. Rules prüfen das Datumsformat und Wertebereiche, aber keine vollständige
 Kalenderarithmetik; diese übernimmt die Clientvalidierung. Ein manipulierter Client
 könnte z. B. 31. Februar im eigenen Datenbereich speichern. Produktionsregeln wurden
 nicht geprüft oder geändert: Eine sichere produktive Nutzung setzt separat geprüfte
@@ -225,3 +231,204 @@ Branch wurde erfolgreich zu GitHub gepusht. `gh pr create` scheiterte mit
 Der verfügbare GitHub-Connector konnte den [Draft-PR #3](https://github.com/FatimaKhaliil/codex-learning-planner/pull/3)
 erfolgreich erstellen. Basis: main bei `896794c7`; kein Merge. Der PR benennt die
 offenen Emulator-, Audit- und Designpunkte ausdrücklich.
+
+
+## Vertiefte Sicherheitsbewertung der npm-Abhängigkeiten
+
+Bewertungsdatum: 31.10.2026. Analysierter Code: `abcfd7e96b11d4064b6f17e8113a6da3898d4fd8`
+mit unverändertem ursprünglichem Lockfile. Ausgangspunkt ist eine statisch gebaute
+React-/Vite-Web-App mit Firebase Web SDK, ohne eigenes Node-Produktionsbackend,
+ohne SSR und ohne eigenen gRPC-Server. Die Bewertung gilt für diesen Umfang und
+den gemessenen Build; eine produktiv bereitgestellte Installation wurde nicht separat
+untersucht. Es wurden weder Exploits ausgeführt noch fremde Dienste angegriffen.
+
+### 1. Installierte Version und Ursache
+
+`npm ls` und `npm explain @grpc/grpc-js` ergeben:
+
+```text
+firebase@13.0.0
+├─ @firebase/firestore@4.18.0
+│  └─ @grpc/grpc-js@1.9.16
+└─ @firebase/firestore-compat@0.4.15
+   └─ @firebase/firestore@4.18.0 (dedupliziert)
+```
+
+Firestore deklariert `@grpc/grpc-js: ~1.9.0`. Diese Range bedeutet
+`>=1.9.0 <1.10.0`; sie erlaubt keine beliebige neuere 1.x-Version. Das Lockfile
+fixiert 1.9.16. Eine aktuelle Registry-Abfrage zeigt 1.9.16 als höchste angebotene
+Version innerhalb dieser Range. Die Abhängigkeit gehört zum produktiven Paketbaum
+(`dev:false` laut npm explain), weil das plattformübergreifende Firebase-Paket auch
+Node-Implementierungen mitliefert. `--omit=dev` entfernt solche ungenutzten
+Plattformzweige nicht aus der Audit-Bewertung.
+
+Der aktuelle Lauf von `npm audit --omit=dev --json` meldet weiterhin vier High-
+**Paketbefunde**: grpc-js, firestore, firestore-compat und firebase. Das sind
+propagierte Meldungen zu zwei Advisories, keine vier unabhängigen High-Lücken.
+Das einzelne Advisory GHSA-f596-whhp-79r4 ist als **Low, CVSS 3.7** eingestuft;
+GHSA-m9gg-hp2v-232j als **High, CVSS 7.4**. npm ordnet dem betroffenen Paket und
+seinen abhängigen Paketen die höchste relevante Schwere zu.
+
+### 2. Tatsächlicher Inhalt des Browser-Produktionsbuilds
+
+Die Paket-Exports von `@firebase/firestore@4.18.0` unterscheiden:
+
+| Ziel | Einstieg |
+| --- | --- |
+| Browser / ESM | `dist/index.esm.js` |
+| Node / ESM | `dist/index.node.mjs` |
+| Node / CommonJS | `dist/index.node.cjs.js` |
+
+Der Node-Einstieg importiert `@grpc/grpc-js`; Vite verwendet im hier geprüften
+Clientbuild den Browser-Einstieg. Der Firestore-Browsertransport importiert
+`@firebase/webchannel-wrapper`, nicht den Node-gRPC-Transport. Die TLS-Verbindung
+im Browser wird vom Browser verwaltet; die Anwendung betreibt darüber keinen
+Node-gRPC-Server und keine serverseitige Zertifikatsauthentifizierung mit grpc-js.
+
+Die Prüfung wurde erneut mit TypeScript und einem echten Vite-Produktionsbuild
+vorgenommen. Ein rein temporäres `generateBundle`-Plugin erfasste für **alle erzeugten
+JavaScript-Chunks einschließlich des nachgeladenen Aufgaben-Chunks** deren
+`chunk.modules`-Einträge. Ergebnis: **52 Module, zwei Firestore-Module, null Module
+unter `@grpc/`**. Enthaltene Firestore-Module:
+
+```text
+@firebase/firestore/dist/common-D9UYuXJO.esm.js
+@firebase/firestore/dist/index.esm.js
+```
+
+Dies entspricht dem bereits archivierten
+[Browser-Modulgraph](verification/aufgabe-03/bundle-security.json).
+Die Aussage beruht auf der Modulzuordnung des Bundlers, nicht allein auf einer
+Textsuche in minifiziertem JavaScript. Das Lockfile enthält grpc-js, der gemessene
+Browserbuild enthält es nicht. Andere Builds, SSR, Node-Skripte oder später geänderte
+Imports sind damit nicht automatisch abgedeckt.
+
+### 3. Angriffsvoraussetzungen und Erreichbarkeit
+
+| Advisory | Laut Primärquelle notwendiger Angriffspfad | Befund für diese Anwendung |
+| --- | --- | --- |
+| [GHSA-m9gg-hp2v-232j](https://github.com/advisories/GHSA-m9gg-hp2v-232j), CWE-295 | Ein grpc-js-Server erzeugt Server-Credentials mit `requireClientCertificate=false` und verwendet `getAuthContext()` zur Authentifizierung. Die Rückgabe unterscheidet dann autorisierte und nicht autorisierte Zertifikate nicht ausreichend. Das Advisory nennt insbesondere bestimmte RBAC-Konfigurationen von grpc-js-xds. | Kein ausgelieferter grpc-js-Code, kein solcher Server, keine solche Credential-/RBAC-Konfiguration und kein entsprechender Authentifizierungspfad im App-Code. Firebase Authentication verwendet diesen serverseitigen App-Pfad nicht. Für den untersuchten Browserbuild ist das beschriebene Szenario nicht erreichbar. |
+| [GHSA-f596-whhp-79r4](https://github.com/advisories/GHSA-f596-whhp-79r4), CWE-550 | Ein mit grpc-js betriebener Server hat einen abstürzenden Method-Handler. Dessen Fehlermeldung gelangt in die an den Client gesendete Statusmeldung und kann darin enthaltene sensible Informationen offenlegen. | Die App stellt keinen grpc-js-Server und keine solchen Method-Handler bereit. Im Browser fehlt die Bibliothek vollständig. Für diesen Browserbuild ist der beschriebene Informationsabfluss nicht erreichbar. |
+
+Die Registry-Versionszuordnung erfasst 1.9.16 als betroffen; daraus folgt ohne Prüfung
+der genutzten APIs und Laufzeitrolle noch kein erreichbarer Angriff. Für diese
+Web-App fehlt bereits die notwendige ausgelieferte Komponente. **Es gibt somit
+keine nachgewiesene Browser-Ausnutzbarkeit dieser beiden Befunde; die geprüften
+Angriffspfade sind in der beschriebenen Architektur nicht vorhanden.** Das ist eine
+begründete komponenten- und architekturbezogene Aussage, kein Beweis allgemeiner
+Unverwundbarkeit und keine Untersuchung der internen Google-Firebase-Infrastruktur.
+
+Der erfolgreiche Windows-Emulatortest belegt laut Projektverantwortlicher CRUD und
+Benutzertrennung der App. Er ist kein Exploit-Test dieser beiden Advisories. Auch die
+Unterscheidung zwischen Browser und Node ist relevant: Der Node-basierte
+Firestore-Integrationstest kann den Node-Transport laden. Ein gRPC-Client ist aber
+noch kein Server mit den oben beschriebenen Authentifizierungs-/Handlerpfaden.
+Ein Produktionsbetrieb dieser Node-Abhängigkeiten ist mit dieser Bewertung nicht
+freigegeben.
+
+### 4. Korrekturmöglichkeiten ohne ungeprüfte Eingriffe
+
+Die Primärquellen nennen für beide Advisories korrigierte Versionen **1.13.6** und
+**1.14.5**. Betroffen sind `<1.13.6` sowie `>=1.14.0 <1.14.5`; daher wäre die pauschale
+Aussage „jede Version ab 1.13.6 ist sicher“ falsch.
+
+Am Bewertungsdatum wurden folgende Registry-Metadaten erneut abgefragt:
+
+```text
+firebase@latest                 = 13.1.0
+firebase@13.1.0 → firestore      = 4.19.0
+firestore@4.19.0 → grpc-js       = ~1.9.0
+höchste Version in ~1.9.0        = 1.9.16
+```
+
+| Option | Beurteilung |
+| --- | --- |
+| Reguläres Update innerhalb `~1.9.0` | Liefert nach aktuellem Registry-Stand keinen korrigierten Patch. |
+| Firebase 13.1.0 als kompatibles SDK-Update | Verlangt weiterhin die betroffene gRPC-Range. Wurde in der Implementierung probeweise installiert und auditiert, ohne Behebung; danach zurückgenommen. Kein behaupteter erfolgreicher Sicherheitspatch. |
+| npm-Audit-Vorschlag Firebase 9.14.0 | Inkompatibles Downgrade; ausgeschlossen. |
+| grpc-js ≥1.13.6 bzw. korrigierter 1.14-Zweig per Override | Außerhalb der von Firestore deklarierten Range. Dass grpc-js die Major-Version 1 behält, belegt keine von Firebase getestete Kombination. Ohne Upstream-Freigabe und vollständige Regression kein belegter sicherer Drop-in-Fix; gemäß Vorgabe nicht durchgeführt. |
+| Nur ein zusätzliches direktes grpc-js installieren | Kann die transitive 1.9-Abhängigkeit parallel bestehen lassen und ist keine verlässliche Behebung. |
+| Nur den Browserimport ändern / zu Firestore Lite wechseln | Der plattformübergreifende Paketbaum kann dieselbe transitive Abhängigkeit weiter enthalten; kein belegter Audit-Fix. Ein SDK-/Transportwechsel wäre gesondert auf Funktion und Sicherheit zu testen. |
+
+**Es ist derzeit keine kompatible, getestete Korrektur belegt, die beide Audit-
+Befunde unter den vorgegebenen Einschränkungen entfernt.** Dies bedeutet nicht,
+dass eine Korrektur grundsätzlich unmöglich ist. Der vorgesehene Weg ist ein
+Upstream-Firebase-/Firestore-Release mit korrigierter Dependency-Range oder einem
+freigegebenen Backport und anschließender Prüfung. In dieser Bewertung wurden
+`package.json`, Lockfile und installierte App-Abhängigkeiten nicht geändert; kein
+`audit fix --force`, kein Override und kein produktives Deployment ausgeführt.
+
+### 5. Verbleibendes Risiko und nachvollziehbare Entscheidung
+
+| Bewertungsebene | Ergebnis |
+| --- | --- |
+| Installierter produktiver npm-Paketbaum | Bekannte betroffene Version vorhanden; vier High-Paketmeldungen bleiben offen. Keine technische Behebung. |
+| Gemessene Browser-Auslieferung | Betroffene Bibliothek nicht enthalten; die beiden beschriebenen serverseitigen Angriffspfade sind für diese Auslieferung nicht erreichbar. |
+| Tatsächlich nachgewiesene Browser-Ausnutzung | Keine. Die Versionswarnung allein ist kein solcher Nachweis. Es wurde auch kein Penetrationstest durchgeführt. |
+| Entwicklungs-/Testumgebung | Node-Abhängigkeit kann geladen werden. Beschriebene Servervoraussetzungen sind in den geprüften App-/Testdateien nicht implementiert; fremde Werkzeuge und zukünftige Servernutzung bedürfen eigener Bewertung. |
+| Restunsicherheit | Künftige Imports, Buildkonfiguration, SSR, Backend oder zusätzliches gRPC-Hosting können die Erreichbarkeit ändern. Weitere Schwachstellen sind durch diese gezielte Analyse nicht ausgeschlossen. |
+
+Für die Bachelorarbeit lässt sich das Ergebnis so formulieren:
+
+> Die statische Abhängigkeitsanalyse identifizierte zwei bekannte Advisories in der
+> transitiv installierten Bibliothek @grpc/grpc-js 1.9.16. npm propagiert diese als
+> vier High-Paketbefunde. Die ergänzende Analyse des tatsächlich erzeugten
+> Browser-Produktionsbundles wies keine Module dieser Bibliothek nach. Beide
+> Advisories setzen serverseitige grpc-js-Funktionen voraus, die der untersuchte
+> React-/Firebase-Web-Client weder ausliefert noch bereitstellt. Die Audit-Meldungen
+> bleiben daher technisch offen, stellen für diesen Build jedoch keinen Nachweis
+> einer erreichbaren Browser-Schwachstelle dar. Mangels einer aktuell belegten
+> kompatiblen Upstream-Korrektur wird das Abhängigkeitsrisiko transparent
+> dokumentiert und weiter beobachtet; ein ungeprüfter Versions-Override erfolgt
+> nicht. Die Schlussfolgerung gilt ausschließlich für die untersuchte Architektur
+> und ersetzt keine allgemeine Sicherheitsfreigabe.
+
+Empfohlen wird eine dokumentierte, auf diesen Browserbuild begrenzte Weiterführung
+der Entwicklung statt einer Einstufung als „audit-clean“. Eine formelle
+Risikoakzeptanz verbleibt bei der Projektverantwortlichen und wird durch diese
+Analyse nicht stellvertretend erteilt. Als Kontrollen sind ausschließlich statische
+Buildartefakte auszuliefern (nicht node_modules/Entwicklungsserver), Lockfile und
+Audit-Ergebnisse zu erhalten und bei Dependency-/Build-/Architekturänderungen
+Bundle-Erreichbarkeit erneut zu prüfen. Vor Einführung eines Node-Backends, SSR,
+Cloud Functions oder gRPC-Servers ist eine neue Bewertung erforderlich.
+
+Sobald ein passender Upstream-Fix verfügbar ist: kontrolliertes SDK-Update,
+`npm audit --omit=dev`, TypeScript/Build/Unit-/Auth-Regression, Firestore-CRUD und
+Benutzertrennung am Emulator sowie erneute Prüfung aller Browser-Chunks. Audit-
+Befunde dürfen erst nach belegter Korrektur als behoben bezeichnet werden.
+
+### Quellen und Reproduzierbarkeit
+
+Primärquellen, abgerufen am 31.10.2026:
+
+- [GHSA-m9gg-hp2v-232j](https://github.com/advisories/GHSA-m9gg-hp2v-232j):
+  Voraussetzungen für Zertifikats-/getAuthContext-Fehlinterpretation, Schwere und Fixversionen.
+- [GHSA-f596-whhp-79r4](https://github.com/advisories/GHSA-f596-whhp-79r4):
+  serverseitige Handler-Fehlermeldungen, Schwere und Fixversionen.
+- Lokale `package-lock.json` und Paket-Manifeste, insbesondere
+  `node_modules/@firebase/firestore/package.json` (Dependency-Range/Browser-/Node-Exports).
+- Aktuelle npm-Registry-Abfragen und aktueller Audit-Lauf; der ursprüngliche
+  [Audit-Rohbefund](verification/aufgabe-03/npm-audit.json) bleibt als historischer
+  Befund unverändert erhalten und wurde nicht als neu erzeugte Datei ausgegeben.
+
+Ausgeführte Prüfungen (Caches/HTML-Snapshots und temporäres Build-Plugin nur in work/):
+
+```sh
+npm ls firebase @firebase/firestore @grpc/grpc-js
+npm explain @grpc/grpc-js
+npm audit --omit=dev --json
+npm view firebase@latest version dependencies.@firebase/firestore --json
+npm view @firebase/firestore@latest version dependencies.@grpc/grpc-js --json
+npm view '@grpc/grpc-js@~1.9.0' version --json
+npm run typecheck
+node work/inspect-build.mjs
+git diff --check
+```
+
+Das temporäre Build-Plugin verwendet Vites `generateBundle`, liest aus jedem
+Chunk `Object.keys(chunk.modules)` und zählt sämtliche Pfade unter `/@grpc/`.
+Für eine unabhängige Wiederholung kann derselbe Hook in einer temporären Kopie
+außerhalb des produktiven Konfigurationspfads ergänzt werden. Der vorhandene
+archivierte Modulgraph benennt die erfassten Firestore-Dateien und die leere
+gRPC-Liste. In dieser Sitzung wurde nur diese Dokumentation als versionierte
+Projektdatei geändert; Anwendungscode, Rules und Lockfile bleiben unverändert.
