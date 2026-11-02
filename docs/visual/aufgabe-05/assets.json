@@ -1,0 +1,38 @@
+{
+  "source": "Figma Design I1M2Vz1vC3uDl0KWkyRyzF, read-only direct SVG_STRING export",
+  "frames": {
+    "desktop": "32:35472",
+    "mobile": "32:35637"
+  },
+  "assets": [
+    {
+      "node": "32:38172",
+      "file": "public/assets/figma/32-38172.svg",
+      "width": 20,
+      "height": 20,
+      "modified": false
+    },
+    {
+      "node": "32:38178",
+      "file": "public/assets/figma/32-38178.svg",
+      "width": 20,
+      "height": 20,
+      "modified": false
+    },
+    {
+      "node": "32:38181",
+      "file": "public/assets/figma/32-38181.svg",
+      "width": 20,
+      "height": 20,
+      "modified": false
+    },
+    {
+      "node": "32:35546",
+      "file": "public/assets/figma/32-35546.svg",
+      "width": 5,
+      "height": 5,
+      "modified": false
+    }
+  ],
+  "unavailableRequiredAssets": []
+}

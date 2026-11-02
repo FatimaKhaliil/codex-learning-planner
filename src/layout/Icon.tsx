@@ -1,5 +1,6 @@
 // Unmodified SVG exports from Figma Design. Native dimensions are preserved.
 const assets = {
+  previousMonth: ['32-38178', 20], nextMonth: ['32-38181', 20], calendarActive: ['32-38172', 20], calendarTaskDot: ['32-35546', 5],
   notebook: ['32-37923', 20], grid: ['32-37995', 20], gridActive: ['32-38097', 20],
   notebookMuted: ['32-38100', 20], calendar: ['32-38001', 20], calendarSidebar: ['32-37932', 20],
   gridSidebar: ['32-37926', 20], user: ['32-37968', 20], logout: ['32-37935', 16],
