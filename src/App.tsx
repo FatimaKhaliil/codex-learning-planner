@@ -5,11 +5,11 @@ import { validateAuthForm } from './auth/validation'
 import { authErrorMessage } from './auth/errors'
 const TasksPanel = lazy(() => import('./tasks/TasksPanel').then(module => ({ default: module.TasksPanel })))
 
-type View = 'login' | 'register' | 'reset' | 'dashboard'
+type View = 'login' | 'register' | 'reset' | 'dashboard' | 'tasks' | 'calendar' | 'profile'
 type FieldErrors = Partial<Record<'email' | 'password' | 'confirmation', string>>
 
 const paths: Record<View, string> = {
-  login: '#/login', register: '#/register', reset: '#/reset-password', dashboard: '#/dashboard',
+  login: '#/login', register: '#/register', reset: '#/reset-password', dashboard: '#/dashboard', tasks: '#/tasks', calendar: '#/calendar', profile: '#/profile',
 }
 function currentView(): View {
   return (Object.keys(paths) as View[]).find((view) => paths[view] === window.location.hash) ?? 'login'
@@ -145,37 +145,6 @@ function AuthForm({ mode }: { mode: 'login' | 'register' | 'reset' }) {
   </section>
 }
 
-function Dashboard() {
-  const { user, logout } = useAuth()
-  const [pending, setPending] = useState(false)
-  const [error, setError] = useState('')
-  async function signOut() {
-    if (pending) return
-    setPending(true)
-    setError('')
-    try { await logout() } catch (cause) { setError(authErrorMessage(cause)) } finally { setPending(false) }
-  }
-  if (!user) return null
-  return <div className="dashboard">
-    <aside className="sidebar"><Brand />
-      <nav aria-label="Hauptnavigation"><a className="active" href={paths.dashboard} aria-current="page"><img src="/assets/grid.png" width="20" height="20" alt="" />Übersicht</a></nav>
-      <div className="sidebar-account"><span className="avatar" aria-hidden="true">{user.email?.slice(0, 1).toUpperCase() ?? 'L'}</span>
-        <span className="account-email">{user.email}</span></div>
-      <button className="secondary-button sidebar-logout" onClick={signOut} disabled={pending}><img src="/assets/logout.png" width="16" height="16" alt="" />{pending ? 'Abmeldung läuft …' : 'Abmelden'}</button>
-    </aside>
-    <div className="dashboard-main"><header className="dashboard-header"><div><p className="form-label">Dein Lernplaner</p><h1>Deine Übersicht</h1></div>
-      <button className="secondary-button mobile-logout" onClick={signOut} disabled={pending}>{pending ? 'Abmeldung läuft …' : 'Abmelden'}</button>
-    </header>
-      <main className="dashboard-content" id="main-content" tabIndex={-1}><h2>Schön, dass du da bist.</h2><p>Dein persönlicher Bereich im Lernplaner.</p>
-        <section className="account-card" aria-labelledby="account-title"><h2 id="account-title">Dein Konto</h2><p className="notice success">Du bist angemeldet.</p><dl><dt>E-Mail-Adresse</dt><dd>{user.email}</dd></dl>
-          </section>
-        <Suspense fallback={<p role="status">Aufgabenbereich wird geladen …</p>}><TasksPanel key={user.uid} userId={user.uid} /></Suspense>
-        {error && <p className="notice error" role="alert">{error}</p>}
-      </main>
-    </div>
-  </div>
-}
-
 function AuthenticatedApp() {
   const auth = useAuth()
   const [view, setView] = useState(currentView)
@@ -186,13 +155,14 @@ function AuthenticatedApp() {
   }, [])
   useEffect(() => {
     if (auth.initializing || auth.observerError) return
-    const target = auth.user ? 'dashboard' : view === 'dashboard' ? 'login' : view
+    const protectedView = ['dashboard', 'tasks', 'calendar', 'profile'].includes(view)
+    const target = auth.user ? protectedView ? view : 'dashboard' : protectedView ? 'login' : view
     if (window.location.hash !== paths[target]) window.location.replace(paths[target])
   }, [auth.user, auth.initializing, auth.observerError, view])
   if (auth.initializing) return <AuthLayout><div className="auth-card" role="status"><span className="spinner" aria-hidden="true" /> Anmeldung wird geprüft …</div></AuthLayout>
   if (auth.observerError) return <AuthLayout><section className="auth-card"><h1>Anmeldung nicht verfügbar</h1><p className="notice error" role="alert">{auth.observerError}</p><button className="primary-button" onClick={() => window.location.reload()}>Erneut versuchen</button></section></AuthLayout>
-  if (auth.user) return <Dashboard />
-  return <AuthLayout><AuthForm key={view} mode={view === 'dashboard' ? 'login' : view} /></AuthLayout>
+  if (auth.user) return <Suspense fallback={<p role="status">Lernplaner wird geladen …</p>}><TasksPanel key={auth.user.uid} userId={auth.user.uid} view={view === 'tasks' || view === 'calendar' || view === 'profile' ? view : 'dashboard'} /></Suspense>
+  return <AuthLayout><AuthForm key={view} mode={view === 'register' || view === 'reset' ? view : 'login'} /></AuthLayout>
 }
 
 export default function App() {
