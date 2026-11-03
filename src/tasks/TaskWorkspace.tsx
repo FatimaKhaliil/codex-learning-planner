@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AppLayout } from '../layout/AppLayout'
 import type { AppIdentity, AppView } from '../layout/AppLayout'
 import { Icon } from '../layout/Icon'
+import { CalendarView, initialCalendarSelection } from '../calendar/CalendarView'
 import type { TaskRepository } from './repository'
 import { TaskForm } from './TaskForm'
 import { TaskList } from './TaskList'
@@ -15,6 +16,7 @@ import type { Task, TaskInput, TaskStatus } from './model'
 interface Props { repository: TaskRepository | null; view?: AppView; identity?: AppIdentity; onLogout?: () => void; loggingOut?: boolean; logoutError?: string }
 export function TaskWorkspace({ repository, view = 'tasks', identity, onLogout = () => {}, loggingOut = false, logoutError }: Props) {
   const { tasks, loading, error, reload } = useTasks(repository)
+  const [calendar, setCalendar] = useState(initialCalendarSelection)
   const [editor, setEditor] = useState<Task | 'new' | null>(null)
   const [deleting, setDeleting] = useState<Task | null>(null)
   const [pending, setPending] = useState(false)
@@ -59,7 +61,8 @@ export function TaskWorkspace({ repository, view = 'tasks', identity, onLogout =
     {mutationError && !deleting && <p className="notice error" role="alert">{mutationError}</p>}</>
   const body = <div ref={content} className="workspace-content">
     {!identity && <div className="tasks-heading"><h1 data-page-heading tabIndex={-1}>{title}</h1><button className="primary-button" disabled={addDisabled} onClick={() => begin('new')}>Aufgabe hinzufügen</button></div>}
-    {view === 'calendar' || view === 'profile' ? <section className="unavailable-page"><h2 data-page-heading tabIndex={-1}>{view === 'calendar' ? 'Kalender folgt in einer späteren Aufgabe' : 'Benutzerprofil folgt in einer späteren Aufgabe'}</h2><p>Diese Ansicht ist noch nicht implementiert.</p><a className="secondary-button" href="#/tasks">Zu deinen Aufgaben</a>{view === 'profile' && <button className="secondary-button" onClick={onLogout} disabled={loggingOut}>{loggingOut ? 'Abmeldung läuft …' : 'Abmelden'}</button>}{logoutError && <p className="notice error" role="alert">{logoutError}</p>}</section>
+    {view === 'profile' ? <section className="unavailable-page"><h2 data-page-heading tabIndex={-1}>Benutzerprofil folgt in einer späteren Aufgabe</h2><p>Diese Ansicht ist noch nicht implementiert.</p><a className="secondary-button" href="#/tasks">Zu deinen Aufgaben</a>{view === 'profile' && <button className="secondary-button" onClick={onLogout} disabled={loggingOut}>{loggingOut ? 'Abmeldung läuft …' : 'Abmelden'}</button>}{logoutError && <p className="notice error" role="alert">{logoutError}</p>}</section>
+    : view === 'calendar' ? <>{status}{deleting && <DeleteTaskDialog task={deleting} pending={pending} error={mutationError} onCancel={() => { setDeleting(null); setMutationError(''); focusHeading() }} onConfirm={() => { if (repository) void mutate(() => repository.remove(deleting.id), 'Aufgabe gelöscht.') }} />}<CalendarView tasks={tasks} loading={loading} error={error} value={calendar} onChange={setCalendar} renderTasks={list} /></>
     : editor ? <><button className="back-link" onClick={closeEditor}><Icon name="back" />Zurück zu Aufgaben</button><TaskForm key={editor === 'new' ? 'new' : editor.id} initial={editor === 'new' ? undefined : editor} onSave={save} onCancel={closeEditor} /></>
     : <>{view === 'dashboard' && <div className="overview-intro"><h2 data-page-heading tabIndex={-1}>Hallo{identity?.displayName ? ` ${identity.displayName.split(' ')[0]}` : ''}, schön, dass du da bist.</h2><p>Dein Lernalltag, gut organisiert. Das steht als Nächstes an.</p></div>}
       {status}

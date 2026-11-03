@@ -15,11 +15,11 @@ export function AppLayout({ view, title, identity, openCount, children, onAdd, a
   const taskContext = view === 'tasks'
   function navigation(mobile: boolean) {
     return <nav className={mobile ? 'bottom-navigation' : 'app-navigation'} aria-label={mobile ? 'Mobile Hauptnavigation' : 'Hauptnavigation'}>{links.map(link => <a href={`#/${link.view}`} key={link.view} aria-current={view === link.view ? 'page' : undefined}>
-      <Icon name={link.view === 'dashboard' ? view === 'dashboard' ? 'gridActive' : mobile ? 'grid' : 'gridSidebar' : link.view === 'tasks' ? view === 'tasks' ? 'notebook' : 'notebookMuted' : mobile ? 'calendar' : 'calendarSidebar'} />
+      <Icon name={link.view === 'dashboard' ? view === 'dashboard' ? 'gridActive' : mobile ? 'grid' : 'gridSidebar' : link.view === 'tasks' ? view === 'tasks' ? 'notebook' : 'notebookMuted' : view === 'calendar' ? 'calendarActive' : mobile ? 'calendar' : 'calendarSidebar'} />
       <span>{link.label}</span>{link.view === 'tasks' && openCount !== undefined && !mobile && <span className="nav-count">{openCount}</span>}
     </a>)}</nav>
   }
-  return <div className="planner-layout">
+  return <div className={`planner-layout${view === 'calendar' ? ' calendar-layout' : ''}`}>
     <aside className="planner-sidebar"><div><a className="brand" href="#/dashboard"><span className="brand-icon"><Icon name="notebook" /></span>Lernplaner</a>{navigation(false)}</div>
       <div className="planner-account"><a href="#/profile" className="profile-link" aria-label="Benutzerprofil öffnen"><span className="avatar" aria-hidden="true">{initials}</span><span><strong>{name}</strong><small>{identity.email}</small></span></a>
         <button className="icon-button sidebar-signout" aria-label={loggingOut ? 'Abmeldung läuft …' : 'Abmelden'} onClick={onLogout} disabled={loggingOut}><Icon name="logout" /></button></div>

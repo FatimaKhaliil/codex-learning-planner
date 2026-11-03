@@ -1,9 +1,9 @@
 """Browser regression against an isolated repository fixture, NOT Firestore evidence."""
-import asyncio,json
+import asyncio,json,os
 from pathlib import Path
 from playwright.async_api import async_playwright,expect
-BASE='http://127.0.0.1:5180/tests/fixtures/navigation.html'
-OUT=Path('docs/visual/aufgabe-04');OUT.mkdir(parents=True,exist_ok=True)
+BASE=os.environ.get('TASKS_BROWSER_BASE_URL','http://127.0.0.1:5180/').rstrip('/')+'/tests/fixtures/navigation.html'
+OUT=Path(os.environ.get('TASKS_BROWSER_OUT','docs/visual/aufgabe-04'));OUT.mkdir(parents=True,exist_ok=True)
 async def main():
  checks=[];metrics=[]
  async with async_playwright() as p:
@@ -92,16 +92,18 @@ async def main():
   await expect(page.get_by_role('heading',name='Deine nächsten Lernschritte',exact=True)).to_be_visible()
   await page.get_by_role('link',name='Alle Aufgaben ansehen',exact=True).click()
   await expect(page.get_by_role('heading',name='Meine Aufgaben',exact=True)).to_be_visible()
-  for route,label in [('calendar','Kalender'),('profile','Benutzerprofil')]:
-   await page.goto(BASE+'#/'+route)
-   await expect(page.get_by_text('Diese Ansicht ist noch nicht implementiert.',exact=True)).to_be_visible()
-   await page.get_by_role('link',name='Zu deinen Aufgaben',exact=True).click()
+  await page.goto(BASE+'#/calendar')
+  await expect(page.locator('.calendar-card')).to_be_visible()
+  await page.locator('.app-navigation a[href="#/tasks"]').click()
+  await page.goto(BASE+'#/profile')
+  await expect(page.get_by_text('Diese Ansicht ist noch nicht implementiert.',exact=True)).to_be_visible()
+  await page.get_by_role('link',name='Zu deinen Aufgaben',exact=True).click()
   await page.set_viewport_size({'width':390,'height':844})
   await page.locator('.bottom-navigation').get_by_role('link',name='Übersicht',exact=True).click()
   await expect(page.locator('.bottom-navigation').get_by_role('link',name='Übersicht',exact=True)).to_have_attribute('aria-current','page')
   await page.locator('.bottom-navigation').get_by_role('link',name='Aufgaben',exact=True).click()
   await expect(page.get_by_role('heading',name='Meine Aufgaben',exact=True)).to_be_visible()
-  checks.append('desktop/mobile navigation, active states, overview link, honest calendar/profile placeholders')
+  checks.append('desktop/mobile navigation, active states, overview link, calendar route and honest profile placeholder')
   assert not errors,errors
   await b.close()
  OUT.joinpath('browser-results.json').write_text(json.dumps({'scope':'isolated in-memory repository, NOT real Firestore', 'checks':checks,'metrics':metrics,'pageErrors':errors},indent=2)+'\n')

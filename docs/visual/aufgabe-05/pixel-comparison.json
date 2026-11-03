@@ -1,0 +1,34 @@
+{
+  "method": "Pillow RGB absolute difference, threshold >16 in any channel; no alignment correction, no claim of pixel identity",
+  "pairs": "Figma left, browser right; 16px divider",
+  "results": [
+    {
+      "width": 1440,
+      "scope": "calendar card only; full-page dynamic task titles/profile excluded",
+      "crop": [
+        376,
+        134,
+        1368,
+        617
+      ],
+      "meanAbsoluteRgbDifference0to255": 0.4246456121017832,
+      "pixelsWithAnyChannelDifferenceOver16": 3059,
+      "totalPixels": 479136,
+      "fractionOver16": 0.006384408602150538
+    },
+    {
+      "width": 390,
+      "scope": "calendar card only; full-page dynamic task titles/profile excluded",
+      "crop": [
+        20,
+        104,
+        370,
+        477
+      ],
+      "meanAbsoluteRgbDifference0to255": 1.5541452827779905,
+      "pixelsWithAnyChannelDifferenceOver16": 3039,
+      "totalPixels": 130550,
+      "fractionOver16": 0.023278437380314057
+    }
+  ]
+}

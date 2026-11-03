@@ -1,0 +1,39 @@
+{
+  "authSdk": {
+    "exit": 0,
+    "passed": 12,
+    "log": "auth-sdk-results.json"
+  },
+  "authBrowser": {
+    "exit": 0,
+    "passed": 16,
+    "pageErrors": [],
+    "details": "auth-browser-results.json",
+    "note": "Unmodified tests/browser-auth.py executed in memory with OUT redirected to work/aufgabe-05/auth-browser and AUTH_BROWSER_BASE_URL=http://127.0.0.1:5185/"
+  },
+  "firestore": {
+    "exit": 1,
+    "reason": "Emulator JAR download from storage.googleapis.com fails; test:tasks:integration fails ECONNREFUSED 127.0.0.1:8081",
+    "attempts": 1,
+    "log": "firestore-integration-error.txt",
+    "emulatorLog": "firestore-emulator-error.txt"
+  },
+  "endpoints": {
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099,
+      "listening": true
+    },
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8081,
+      "listening": false
+    },
+    "vite": {
+      "host": "127.0.0.1",
+      "port": 5185,
+      "listening": true
+    }
+  },
+  "changes": "No application, test, rules, dependency or Git changes made by this agent"
+}
