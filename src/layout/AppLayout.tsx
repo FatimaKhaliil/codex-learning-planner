@@ -19,15 +19,15 @@ export function AppLayout({ view, title, identity, openCount, children, onAdd, a
       <span>{link.label}</span>{link.view === 'tasks' && openCount !== undefined && !mobile && <span className="nav-count">{openCount}</span>}
     </a>)}</nav>
   }
-  return <div className={`planner-layout${view === 'calendar' ? ' calendar-layout' : ''}`}>
+  return <div className={`planner-layout ${view}-layout`}>
     <aside className="planner-sidebar"><div><a className="brand" href="#/dashboard"><span className="brand-icon"><Icon name="notebook" /></span>Lernplaner</a>{navigation(false)}</div>
-      <div className="planner-account"><a href="#/profile" className="profile-link" aria-label="Benutzerprofil öffnen"><span className="avatar" aria-hidden="true">{initials}</span><span><strong>{name}</strong><small>{identity.email}</small></span></a>
+      <div className="planner-account"><a href="#/profile" className="profile-link" aria-label="Benutzerprofil öffnen" aria-current={view === 'profile' ? 'page' : undefined}><span className="avatar" aria-hidden="true">{initials}</span><span><strong>{name}</strong><small>{identity.email}</small></span></a>
         <button className="icon-button sidebar-signout" aria-label={loggingOut ? 'Abmeldung läuft …' : 'Abmelden'} onClick={onLogout} disabled={loggingOut}><Icon name="logout" /></button></div>
     </aside>
     <div className="planner-main"><header className="planner-header"><div><p>{date}</p><h1>{title}</h1></div><div className="header-actions">
       {taskContext && <label className="header-search"><Icon name="search" /><span className="sr-only">Aufgaben suchen</span><input type="search" value={search} onChange={e => onSearch(e.target.value)} placeholder="Suchen …" /></label>}
       {taskContext && <button className="primary-button header-add" disabled={addDisabled} onClick={onAdd} aria-label="Aufgabe hinzufügen"><Icon name="plus" /><span>Aufgabe hinzufügen</span></button>}
-      <a className="icon-button header-profile" href="#/profile" aria-label="Benutzerprofil öffnen"><Icon name="user" /></a>
+      <a className="icon-button header-profile" href="#/profile" aria-label="Benutzerprofil öffnen" aria-current={view === 'profile' ? 'page' : undefined}><Icon name="user" /></a>
     </div></header><main className="planner-content" id="main-content" tabIndex={-1}>{children}</main>{navigation(true)}</div>
   </div>
 }

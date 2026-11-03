@@ -1,0 +1,56 @@
+{
+  "baseCommit": "ec5a3297e4f56daa41b4606a744741cdbb6cbdfc",
+  "branch": "feat/aufgabe-06-figma-dashboard-profile",
+  "typecheck": {
+    "exit": 0
+  },
+  "build": {
+    "exit": 0,
+    "chunkWarning": false
+  },
+  "unit": {
+    "exit": 0,
+    "passed": 30,
+    "dashboardGroups": 6
+  },
+  "isolatedDashboardProfileBrowser": {
+    "exit": 0,
+    "passed": 6,
+    "source": "../../visual/aufgabe-06/browser-dashboard-profile-results.json"
+  },
+  "isolatedTasksBrowser": {
+    "exit": 0,
+    "passed": 6,
+    "source": "tasks-browser-results.json"
+  },
+  "isolatedCalendarBrowser": {
+    "exit": 0,
+    "passed": 5,
+    "source": "calendar-browser-results.json"
+  },
+  "authSdk": {
+    "exit": 0,
+    "passed": 12,
+    "source": "auth-sdk-results.json"
+  },
+  "authBrowser": {
+    "exit": 0,
+    "passed": 19,
+    "source": "auth-browser-results.json"
+  },
+  "firestoreIntegration": {
+    "exit": 1,
+    "status": "blocked",
+    "reason": "emulator JAR download failed; integration ECONNREFUSED 127.0.0.1:8081",
+    "emulatorAttempts": 1,
+    "source": "firestore-integration-error.txt"
+  },
+  "productionFirebase": "not used for validation",
+  "scope": "Counts are test groups/assertions as emitted by each suite, not independent participants or load sessions.",
+  "javascriptBytes": {
+    "ProfileView-BzmcV2fD.js": 2389,
+    "index-Dw9h2Dk5.js": 341651,
+    "DashboardView-B5zS8-CC.js": 2858,
+    "TasksPanel-BkgmkvPu.js": 497731
+  }
+}

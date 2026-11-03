@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { AppLayout } from '../layout/AppLayout'
 import type { AppIdentity, AppView } from '../layout/AppLayout'
 import { Icon } from '../layout/Icon'
@@ -13,6 +13,8 @@ import { filterTasks, taskProgress } from './queries'
 import type { TaskFilter } from './queries'
 import { statusLabels, taskErrorMessage, taskStatuses } from './model'
 import type { Task, TaskInput, TaskStatus } from './model'
+const DashboardView = lazy(() => import('../dashboard/DashboardView').then(module => ({ default: module.DashboardView })))
+const ProfileView = lazy(() => import('../profile/ProfileView').then(module => ({ default: module.ProfileView })))
 interface Props { repository: TaskRepository | null; view?: AppView; identity?: AppIdentity; onLogout?: () => void; loggingOut?: boolean; logoutError?: string }
 export function TaskWorkspace({ repository, view = 'tasks', identity, onLogout = () => {}, loggingOut = false, logoutError }: Props) {
   const { tasks, loading, error, reload } = useTasks(repository)
@@ -59,25 +61,26 @@ export function TaskWorkspace({ repository, view = 'tasks', identity, onLogout =
     {notice && <p className="notice success" role="status">{notice}</p>}
     {pending && <p role="status">Änderung wird gespeichert. Bitte lasse diese Seite geöffnet.</p>}
     {mutationError && !deleting && <p className="notice error" role="alert">{mutationError}</p>}</>
+  const deletion = deleting && <DeleteTaskDialog task={deleting} pending={pending} error={mutationError} onCancel={() => { setDeleting(null); setMutationError(''); focusHeading() }} onConfirm={() => { if (repository) void mutate(() => repository.remove(deleting.id), 'Aufgabe gelöscht.') }} />
   const body = <div ref={content} className="workspace-content">
     {!identity && <div className="tasks-heading"><h1 data-page-heading tabIndex={-1}>{title}</h1><button className="primary-button" disabled={addDisabled} onClick={() => begin('new')}>Aufgabe hinzufügen</button></div>}
-    {view === 'profile' ? <section className="unavailable-page"><h2 data-page-heading tabIndex={-1}>Benutzerprofil folgt in einer späteren Aufgabe</h2><p>Diese Ansicht ist noch nicht implementiert.</p><a className="secondary-button" href="#/tasks">Zu deinen Aufgaben</a>{view === 'profile' && <button className="secondary-button" onClick={onLogout} disabled={loggingOut}>{loggingOut ? 'Abmeldung läuft …' : 'Abmelden'}</button>}{logoutError && <p className="notice error" role="alert">{logoutError}</p>}</section>
-    : view === 'calendar' ? <>{status}{deleting && <DeleteTaskDialog task={deleting} pending={pending} error={mutationError} onCancel={() => { setDeleting(null); setMutationError(''); focusHeading() }} onConfirm={() => { if (repository) void mutate(() => repository.remove(deleting.id), 'Aufgabe gelöscht.') }} />}<CalendarView tasks={tasks} loading={loading} error={error} value={calendar} onChange={setCalendar} renderTasks={list} /></>
+    {view === 'profile' ? <ProfileView identity={identity ?? { displayName: null, email: null }} tasks={tasks} loading={loading} error={error} onReload={() => void reload()} onLogout={onLogout} loggingOut={loggingOut} logoutError={logoutError} />
+    : view === 'calendar' ? <>{status}{deletion}<CalendarView tasks={tasks} loading={loading} error={error} value={calendar} onChange={setCalendar} renderTasks={list} /></>
     : editor ? <><button className="back-link" onClick={closeEditor}><Icon name="back" />Zurück zu Aufgaben</button><TaskForm key={editor === 'new' ? 'new' : editor.id} initial={editor === 'new' ? undefined : editor} onSave={save} onCancel={closeEditor} /></>
-    : <>{view === 'dashboard' && <div className="overview-intro"><h2 data-page-heading tabIndex={-1}>Hallo{identity?.displayName ? ` ${identity.displayName.split(' ')[0]}` : ''}, schön, dass du da bist.</h2><p>Dein Lernalltag, gut organisiert. Das steht als Nächstes an.</p></div>}
+    : view === 'dashboard' ? <>{status}{deletion}<DashboardView tasks={tasks} loading={loading} error={error} identity={identity} renderTasks={list} onAdd={() => begin('new')} addDisabled={addDisabled} /></>
+    : <>
       {status}
       {!loading && !error && !deleting && <ProgressCard tasks={tasks} />}
-      {deleting && <><DeleteTaskDialog task={deleting} pending={pending} error={mutationError} onCancel={() => { setDeleting(null); setMutationError(''); focusHeading() }} onConfirm={() => { if (repository) void mutate(() => repository.remove(deleting.id), 'Aufgabe gelöscht.') }} /><h2 id="tasks-title" className="list-title">Deine Einträge · unverändert</h2></>}
-      {view === 'dashboard' && !loading && !error && <div className="statistics"><div><strong>{progress.open}</strong><span>Nicht abgeschlossen</span></div><div><strong>{progress.done}</strong><span>Erledigt</span></div><div><strong>{progress.total}</strong><span>Gesamt</span></div></div>}
+      {deletion}{deleting && <h2 id="tasks-title" className="list-title">Deine Einträge · unverändert</h2>}
       {view === 'tasks' && !deleting && <label className="mobile-search"><Icon name="searchMobile" /><span className="sr-only">Aufgaben suchen</span><input type="search" placeholder="Aufgaben suchen …" value={search} onChange={event => setSearch(event.target.value)} /></label>}
-      <section className={view === 'dashboard' ? 'overview-next' : 'task-results'} aria-labelledby="tasks-title">
-        {!deleting && <div className="task-list-heading"><h2 id="tasks-title" data-page-heading tabIndex={-1}>{view === 'dashboard' ? 'Deine nächsten Lernschritte' : 'Aufgaben'}</h2>{view === 'tasks' && <div className="status-filters" role="group" aria-label="Aufgaben nach Status filtern">{(['all', ...taskStatuses] as const).map(value => <button key={value} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value === 'all' ? 'Alle' : statusLabels[value]}</button>)}</div>}</div>}
-        {!loading && !error && (view === 'dashboard' ? tasks.length === 0 : filtered.length === 0) && <div className="task-empty"><h3>{tasks.length ? 'Keine passenden Aufgaben' : 'Noch keine Aufgaben'}</h3><p>{tasks.length ? 'Ändere deine Suche oder den Statusfilter.' : 'Erstelle deine erste Aufgabe und plane deinen nächsten Lernschritt.'}</p>{!tasks.length && <button className="secondary-button" onClick={() => begin('new')}>Erste Aufgabe erstellen</button>}</div>}
-        {!loading && !error && list(view === 'dashboard' ? tasks.slice(0, 3) : filtered.slice(0, visible))}
+      <section className="task-results" aria-labelledby="tasks-title">
+        {!deleting && <div className="task-list-heading"><h2 id="tasks-title" data-page-heading tabIndex={-1}>Aufgaben</h2><div className="status-filters" role="group" aria-label="Aufgaben nach Status filtern">{(['all', ...taskStatuses] as const).map(value => <button key={value} aria-pressed={filter === value} onClick={() => setFilter(value)}>{value === 'all' ? 'Alle' : statusLabels[value]}</button>)}</div></div>}
+        {!loading && !error && filtered.length === 0 && <div className="task-empty"><h3>{tasks.length ? 'Keine passenden Aufgaben' : 'Noch keine Aufgaben'}</h3><p>{tasks.length ? 'Ändere deine Suche oder den Statusfilter.' : 'Erstelle deine erste Aufgabe und plane deinen nächsten Lernschritt.'}</p>{!tasks.length && <button className="secondary-button" onClick={() => begin('new')}>Erste Aufgabe erstellen</button>}</div>}
+        {!loading && !error && list(filtered.slice(0, visible))}
         {view === 'tasks' && !loading && !error && filtered.length > visible && <button className="secondary-button load-more" onClick={() => setVisible(value => value + 50)}>Weitere Aufgaben anzeigen</button>}
-        {view === 'dashboard' && <a className="secondary-button all-tasks-link" href="#/tasks">Alle Aufgaben ansehen</a>}
       </section>
     </>}
   </div>
-  return identity ? <AppLayout view={view} title={title} identity={identity} openCount={!loading && !error ? progress.open : undefined} onAdd={() => begin('new')} addDisabled={addDisabled} search={search} onSearch={setSearch} onLogout={onLogout} loggingOut={loggingOut}>{body}</AppLayout> : body
+  const page = <Suspense fallback={<p role="status">Ansicht wird geladen …</p>}>{body}</Suspense>
+  return identity ? <AppLayout view={view} title={title} identity={identity} openCount={!loading && !error ? progress.open : undefined} onAdd={() => begin('new')} addDisabled={addDisabled} search={search} onSearch={setSearch} onLogout={onLogout} loggingOut={loggingOut}>{page}</AppLayout> : page
 }
