@@ -1,0 +1,346 @@
+{
+  "scope": "explicitly isolated in-memory TaskRepository and asynchronous identity callback; NOT Firebase SDK persistence/Auth/Firestore integration",
+  "syntheticInitialIdentity": {
+    "displayName": null,
+    "email": "name-ui@example.test"
+  },
+  "confirmedScreenshotIdentity": "Nora Winter",
+  "fixedTestClock": "2026-10-09T10:00:00Z",
+  "timezone": "Europe/Berlin",
+  "passed": 7,
+  "checks": [
+    "initial email fallback and editable name; unsaved draft never changes identity, avatar, or repository counters; email stays read-only",
+    "Unicode/ASCII whitespace-only and 101-character inputs are rejected before callback; first invalid field focused; input maxLength 200 supports 100 astral Unicode code points",
+    "100 astral Unicode code points saved through Enter; pending input/save/logout disabled, old identity retained until acknowledgment, repeated submit events create exactly one callback attempt",
+    "Unicode edge whitespace trimmed; acknowledged name, sidebar/profile initials and dashboard greeting update immediately without reload or extra task reads/writes",
+    "simulated SDK network error preserves confirmed name/initials and draft with no false success; Enter retry succeeds and updates dashboard/profile/sidebar without reload",
+    "saved-name form screenshots at 1440/390/320 with isolated task progress; no horizontal overflow, all visible original assets at native geometry, email uneditable by keyboard",
+    "global pending save survives dashboard/profile remount: input/save remain disabled until held response acknowledges the new name, duplicate submit is ignored, no extra task reads"
+  ],
+  "audit": {
+    "initial": {
+      "taskReads": 2,
+      "saveAttempts": 0,
+      "successfulSaves": 0,
+      "taskWrites": 0
+    },
+    "afterFailedSave": {
+      "taskReads": 2,
+      "saveAttempts": 3,
+      "successfulSaves": 2,
+      "taskWrites": 0
+    },
+    "afterRetry": {
+      "taskReads": 2,
+      "saveAttempts": 4,
+      "successfulSaves": 3,
+      "taskWrites": 0
+    },
+    "final": {
+      "taskReads": 2,
+      "saveAttempts": 5,
+      "successfulSaves": 4,
+      "taskWrites": 0
+    },
+    "additionalTaskReads": 0
+  },
+  "metrics": [
+    {
+      "width": 1440,
+      "scrollWidth": 1440,
+      "profile": {
+        "x": 376,
+        "y": 134,
+        "width": 600,
+        "height": 647
+      },
+      "nameForm": {
+        "x": 400,
+        "y": 281,
+        "width": 552,
+        "height": 161
+      },
+      "input": {
+        "x": 400,
+        "y": 304,
+        "width": 552,
+        "height": 48
+      },
+      "save": {
+        "x": 400,
+        "y": 394,
+        "width": 552,
+        "height": 48
+      },
+      "email": {
+        "x": 400,
+        "y": 485,
+        "width": 552,
+        "height": 48
+      },
+      "progress": {
+        "x": 400,
+        "y": 553,
+        "width": 552,
+        "height": 80
+      },
+      "logout": {
+        "x": 400,
+        "y": 709,
+        "width": 552,
+        "height": 48
+      },
+      "images": [
+        {
+          "src": "/assets/figma/32-37923.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37926.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38100.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37932.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37935.svg",
+          "loaded": true,
+          "nativeWidth": 16,
+          "nativeHeight": 16,
+          "width": 16,
+          "height": 16
+        },
+        {
+          "src": "/assets/figma/32-37944.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38466.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "scrollWidth": 390,
+      "profile": {
+        "x": 20,
+        "y": 104,
+        "width": 350,
+        "height": 696
+      },
+      "nameForm": {
+        "x": 44,
+        "y": 251,
+        "width": 302,
+        "height": 179
+      },
+      "input": {
+        "x": 44,
+        "y": 274,
+        "width": 302,
+        "height": 48
+      },
+      "save": {
+        "x": 44,
+        "y": 382,
+        "width": 302,
+        "height": 48
+      },
+      "email": {
+        "x": 44,
+        "y": 473,
+        "width": 302,
+        "height": 48
+      },
+      "progress": {
+        "x": 44,
+        "y": 541,
+        "width": 302,
+        "height": 93
+      },
+      "logout": {
+        "x": 44,
+        "y": 728,
+        "width": 302,
+        "height": 48
+      },
+      "images": [
+        {
+          "src": "/assets/figma/32-37968.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37944.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38466.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37995.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38100.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38001.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "scrollWidth": 320,
+      "profile": {
+        "x": 16,
+        "y": 104,
+        "width": 288,
+        "height": 697
+      },
+      "nameForm": {
+        "x": 36,
+        "y": 247,
+        "width": 248,
+        "height": 179
+      },
+      "input": {
+        "x": 36,
+        "y": 270,
+        "width": 248,
+        "height": 48
+      },
+      "save": {
+        "x": 36,
+        "y": 378,
+        "width": 248,
+        "height": 48
+      },
+      "email": {
+        "x": 36,
+        "y": 469,
+        "width": 248,
+        "height": 48
+      },
+      "progress": {
+        "x": 36,
+        "y": 537,
+        "width": 248,
+        "height": 102
+      },
+      "logout": {
+        "x": 36,
+        "y": 733,
+        "width": 248,
+        "height": 48
+      },
+      "images": [
+        {
+          "src": "/assets/figma/32-37968.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37944.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38466.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-37995.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38100.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        },
+        {
+          "src": "/assets/figma/32-38001.svg",
+          "loaded": true,
+          "nativeWidth": 20,
+          "nativeHeight": 20,
+          "width": 20,
+          "height": 20
+        }
+      ]
+    }
+  ],
+  "pageErrors": []
+}

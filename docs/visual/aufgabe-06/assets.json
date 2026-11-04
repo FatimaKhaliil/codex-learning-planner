@@ -1,0 +1,22 @@
+{
+  "source": "Figma Design I1M2Vz1vC3uDl0KWkyRyzF",
+  "frames": [
+    "32:35294",
+    "32:35390",
+    "32:36206",
+    "32:36269"
+  ],
+  "newAssets": [
+    {
+      "node": "32:38466",
+      "file": "public/assets/figma/32-38466.svg",
+      "width": 20,
+      "height": 20,
+      "modified": false,
+      "method": "direct read-only SVG_STRING export after asset URL HTTP 403"
+    }
+  ],
+  "reused": "Existing unmodified Figma SVGs via AppLayout, Icon, ProgressCard and TaskList; runtime load/native geometry checked by browser suite.",
+  "unavailableRequiredAssets": [],
+  "references": "Original-size PNGs exported directly through Figma MCP screenshot images; no screenshot used as application asset."
+}

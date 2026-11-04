@@ -1,0 +1,16 @@
+id,category,environment,evidence_type,status,value,unit,source,limitation
+unit_tests,functional,Node test runner,measured,passed,36,groups,test-summary.json,Includes 6 new validator/initials groups
+name_ui,usability,isolated callback/Chromium,measured,passed,7,groups,../../../visual/aufgabe-06/name-fix/browser-profile-name-results.json,Not Firebase persistence
+name_auth,reliability,real local Auth Emulator/SDK,measured,passed,14,groups,display-name-auth-results.json,No production Firebase or Firestore success claimed
+auth_sdk,regression,real local Auth Emulator/SDK,measured,passed,12,groups,auth-sdk-results.json,No external email delivery
+auth_browser,regression,real local Auth Emulator/SDK,measured,passed,19,groups,auth-browser-results.json,No Firestore user-isolation proof
+tasks_browser,regression,isolated repository,measured,passed,6,groups,tasks-browser-results.json,Not Firestore integration
+calendar_browser,regression,isolated repository,measured,passed,5,groups,calendar-browser-results.json,Not Firestore integration
+dashboard_profile_browser,regression,legacy isolated fixture,measured,passed,6,groups,dashboard-profile-regression-results.json,No name-save callback in this older fixture
+additional_task_reads,performance,isolated callback/StrictMode,measured,passed,0,calls,../../../visual/aufgabe-06/name-fix/browser-profile-name-results.json,2 initial task reads remain2; no real Firestore billing measurement
+task_writes,performance,isolated callback,measured,passed,0,calls,../../../visual/aufgabe-06/name-fix/browser-profile-name-results.json,Authentication writes counted separately
+original_task06_duration,efficiency,historical UTC clock,historical_measured,unchanged,1306,seconds,../phase-timing.json,Original 21 minutes46 seconds preserved
+overflow_1440,usability,isolated/real Auth Chromium,measured,passed,0,horizontal pixels,display-name-auth-results.json,Viewport-specific; no full accessibility audit
+overflow_390,usability,isolated/real Auth Chromium,measured,passed,0,horizontal pixels,display-name-auth-results.json,Viewport-specific; no full accessibility audit
+overflow_320,usability,isolated/real Auth Chromium,measured,passed,0,horizontal pixels,display-name-auth-results.json,Viewport-specific; no full accessibility audit
+additional_name_correction,efficiency,UTC clock,measured,completed,1412,seconds,phase-timing.json,Additional Codex interaction triggered by manual user report; original1306seconds preserved; publication excluded

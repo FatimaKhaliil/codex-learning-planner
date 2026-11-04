@@ -1,0 +1,24 @@
+id,category,environment,evidence_type,status,value,unit,source,limitation
+tests_unit,functional,Node test runner,measured,passed,30,groups,test-summary.json,Includes 6 dashboard groups; no load benchmark
+tests_dashboard_profile,functional,isolated browser repository,measured,passed,6,groups,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Synthetic identity and simulated logout
+tests_tasks,regression,isolated browser repository,measured,passed,6,groups,tasks-browser-results.json,Not Firestore integration
+tests_calendar,regression,isolated browser repository,measured,passed,5,groups,calendar-browser-results.json,Not Firestore integration
+tests_auth_sdk,security,Auth Emulator,measured,passed,12,checks,auth-sdk-results.json,No production Auth calls
+tests_auth_browser,security,Auth Emulator + Chromium,measured,passed,19,groups,auth-browser-results.json,Route protection and identities; no Firestore proof
+tests_firestore,security,Firestore Emulator,observed_failure,blocked,1,attempt,firestore-integration-error.txt,JAR download failed; ECONNREFUSED8081
+capacity_54,capacity,synthetic isolated repository,measured,passed,54,tasks,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Functional counts and sorting; no latency benchmark
+capacity_1000,capacity,synthetic isolated repository,measured,passed,1000,tasks,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Functional counts and sorting; no user-load claim
+reads_3_strict,performance,isolated StrictMode repository,measured,passed,2,calls,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Includes cancelled first-page request
+reads_54_strict,performance,isolated StrictMode repository,measured,passed,3,calls,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Two full pages plus cancelled first-page request
+reads_1000_strict,performance,isolated StrictMode repository,measured,passed,22,calls,../../visual/aufgabe-06/browser-dashboard-profile-results.json,21 full queries including empty terminal page plus cancelled first-page request
+reads_route_change,performance,isolated browser repository,measured,passed,0,additional calls,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Same loaded collection; retries/CRUD reload separately
+load_complexity,scalability,existing repository,theoretical,documented,O(N),documents and memory,../../aufgabe-06.md,Not a latency/cost measurement
+sort_complexity,scalability,upcomingTasks model,theoretical,documented,O(M log M),time,../../aufgabe-06.md,M incomplete tasks; O(M) additional memory
+million_users,capacity,future separate evaluation,not_executed,out_of_scope,,users,../../aufgabe-06.md,No million concurrent users tested
+overflow_dashboard_1440,usability,isolated Chromium,measured,passed,0,px,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Viewport-specific; not a complete accessibility study
+overflow_dashboard_390,usability,isolated Chromium,measured,passed,0,px,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Viewport-specific; not a complete accessibility study
+overflow_dashboard_320,usability,isolated Chromium,measured,passed,0,px,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Viewport-specific; not a complete accessibility study
+overflow_profile_1440,usability,isolated Chromium,measured,passed,0,px,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Viewport-specific; not a complete accessibility study
+overflow_profile_390,usability,isolated Chromium,measured,passed,0,px,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Viewport-specific; not a complete accessibility study
+overflow_profile_320,usability,isolated Chromium,measured,passed,0,px,../../visual/aufgabe-06/browser-dashboard-profile-results.json,Viewport-specific; not a complete accessibility study
+implementation_phase,efficiency,UTC clock,measured,completed,1306,seconds,phase-timing.json,Elapsed wall time; branch preparation and publication excluded; parallel work not added

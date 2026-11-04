@@ -1,0 +1,25 @@
+{
+  "authSdk": {
+    "exit": 0,
+    "passed": 12,
+    "total": 12
+  },
+  "authBrowser": {
+    "exit": 0,
+    "passed": 19,
+    "pageErrors": [],
+    "command": "AUTH_BROWSER_BASE_URL=http://127.0.0.1:5185/ AUTH_BROWSER_OUT=work/aufgabe-06/auth-browser python3 tests/browser-auth.py",
+    "scope": "Real Auth emulator identity, route protection, account switching and readonly profile. Not a successful Firestore integration test."
+  },
+  "firestore": {
+    "exit": 1,
+    "reason": "Emulator jar download failed; ECONNREFUSED127.0.0.1:8081",
+    "startAttempts": 1,
+    "integrationAttempts": 1,
+    "logs": [
+      "firestore-emulator-error.txt",
+      "firestore-integration-error.txt"
+    ]
+  },
+  "app": "local demo-learning-planner; emulator-only configuration; no production calls"
+}

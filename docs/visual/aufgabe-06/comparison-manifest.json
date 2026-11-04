@@ -1,0 +1,66 @@
+[
+  {
+    "view": "dashboard",
+    "width": 1440,
+    "figma": "figma-dashboard-1440.png",
+    "browser": "dashboard-1440.png",
+    "comparison": "comparison-dashboard-1440.png",
+    "figmaDimensions": [
+      1440,
+      935
+    ],
+    "browserDimensions": [
+      1440,
+      935
+    ],
+    "method": "unscaled side-by-side, Figma left, browser right, 16px divider; dynamic texts/task-list lengths differ; no full-page pixel-identity claim"
+  },
+  {
+    "view": "dashboard",
+    "width": 390,
+    "figma": "figma-dashboard-390.png",
+    "browser": "dashboard-390.png",
+    "comparison": "comparison-dashboard-390.png",
+    "figmaDimensions": [
+      390,
+      1143
+    ],
+    "browserDimensions": [
+      390,
+      1143
+    ],
+    "method": "unscaled side-by-side, Figma left, browser right, 16px divider; dynamic texts/task-list lengths differ; no full-page pixel-identity claim"
+  },
+  {
+    "view": "profile",
+    "width": 1440,
+    "figma": "figma-profile-1440.png",
+    "browser": "profile-1440.png",
+    "comparison": "comparison-profile-1440.png",
+    "figmaDimensions": [
+      1440,
+      800
+    ],
+    "browserDimensions": [
+      1440,
+      800
+    ],
+    "method": "unscaled side-by-side, Figma left, browser right, 16px divider; dynamic texts/task-list lengths differ; no full-page pixel-identity claim"
+  },
+  {
+    "view": "profile",
+    "width": 390,
+    "figma": "figma-profile-390.png",
+    "browser": "profile-390.png",
+    "comparison": "comparison-profile-390.png",
+    "figmaDimensions": [
+      390,
+      844
+    ],
+    "browserDimensions": [
+      390,
+      844
+    ],
+    "method": "unscaled side-by-side, Figma left, browser right, 16px divider; dynamic texts/task-list lengths differ; no full-page pixel-identity claim"
+  }
+]

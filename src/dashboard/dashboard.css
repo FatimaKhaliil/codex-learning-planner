@@ -1,0 +1,24 @@
+/* Figma 32:35294 and 32:35390; overrides are limited to this view. */
+.dashboard-view { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.dashboard-view .overview-intro { min-width: 0; overflow-wrap: anywhere; }
+.dashboard-view .overview-intro h2 { font-size: 30px; font-weight: 400; line-height: normal; }
+.dashboard-view .overview-intro p { line-height: normal; }
+.dashboard-view .statistics { align-items: start; }
+.dashboard-view .statistics > div { padding: 23px; min-width: 0; }
+.dashboard-view .statistics strong { overflow-wrap: anywhere; line-height: 34px; }
+.dashboard-view .statistics span { line-height: 13px; }
+.dashboard-view .overview-next { padding: 23px; box-shadow: 0 5px 18px #18382b05; min-width: 0; }
+.dashboard-view .overview-next .task-list-heading h2 { line-height: normal; }
+.dashboard-view .all-tasks-link { min-height: 48px; font-weight: 600; }
+@media (max-width: 900px) {
+  .dashboard-layout .planner-header h1 { font-size: 21px; }
+  .dashboard-view .overview-intro h2 { font-size: 24px; }
+  .dashboard-view .statistics > div { padding: 13px; }
+  .dashboard-view .overview-next { padding: 23px; }
+}
+@media (max-width: 350px) {
+  .dashboard-view .statistics { gap: 8px; }
+  .dashboard-view .statistics > div { padding: 8px; }
+  .dashboard-view .statistics span { font-size: 10px; overflow-wrap: anywhere; }
+  .dashboard-view .overview-next { padding: 15px; }
+}

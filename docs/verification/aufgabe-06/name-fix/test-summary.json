@@ -1,0 +1,44 @@
+{
+  "baselineCommit": "5b874088d3bb04060200a7f505cda0ce2ba2a4fa",
+  "branch": "feat/aufgabe-06-figma-dashboard-profile",
+  "typecheck": {
+    "exit": 0
+  },
+  "build": {
+    "exit": 0,
+    "chunkWarning": false
+  },
+  "unit": {
+    "passed": 36,
+    "newDisplayNameGroups": 6
+  },
+  "isolatedNameBrowser": {
+    "passed": 7,
+    "source": "../../../visual/aufgabe-06/name-fix/browser-profile-name-results.json"
+  },
+  "realAuthNameBrowser": {
+    "passed": 14,
+    "source": "display-name-auth-results.json"
+  },
+  "regressions": {
+    "authSdk": 12,
+    "authBrowser": 19,
+    "isolatedTasksBrowser": 6,
+    "isolatedCalendarBrowser": 5,
+    "isolatedDashboardProfileBrowser": 6
+  },
+  "scope": "New editable-name UI and real local Authentication Emulator persistence. Isolated task fixtures do not prove Firestore integration.",
+  "firestore": {
+    "started": false,
+    "jarDownloadAttempts": 0,
+    "integrationRun": false
+  },
+  "originalTask06TimingUnchanged": true,
+  "originalTask06DurationSeconds": 1306,
+  "javascriptBytes": {
+    "TasksPanel-DKYhvwLU.js": 498029,
+    "DashboardView-BhZGlDoc.js": 2868,
+    "ProfileView-BCQ5SRky.js": 4633,
+    "index-DvDJJqlY.js": 343095
+  }
+}
