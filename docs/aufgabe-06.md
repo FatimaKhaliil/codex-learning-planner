@@ -1,5 +1,7 @@
 # Aufgabe 06 – Figma-getreue Übersicht und Profil
 
+> Historischer Stand: Die ursprüngliche Umsetzung und ihre **21 Minuten 46 Sekunden** sind nachfolgend unverändert dokumentiert. Der manuelle Test der Entwicklerin hat anschließend eine Usability-Lücke beim fehlenden Anzeigenamen aufgedeckt. Die zusätzliche Codex-Interaktion und der aktuelle bearbeitbare Namensablauf stehen im [separaten Nachbesserungsabschnitt](#nachbesserung-anzeigename). Die ursprünglichen Read-only-Aussagen beschreiben den Stand von Commit `5b874088d3bb04060200a7f505cda0ce2ba2a4fa`.
+
 ## Ausgangsbasis, Auftrag und Messung
 
 Bachelorarbeitstitel unverändert: **„KI-gestützte Entwicklung einer Web-App mit OpenAI Codex: Eine evaluative Fallstudie zu Effizienz, Codequalität und Nachvollziehbarkeit“**.
@@ -171,3 +173,114 @@ Offen bleiben die erneute Firestore-CRUD-/Security-Rule-Abnahme mit Emulator, ei
 ## Abschluss der Zeitmessung
 
 Nach Abschluss von Implementierung, Testläufen, visuellen Korrekturen, Nachweiserstellung und Dokumentationsreview endet die Messung am **03.11.2026 um 17:36:56 UTC / 18:36:56 Europe/Berlin**. Seit Beginn um 17:15:10 UTC sind **21 Minuten 46 Sekunden = 1.306 Sekunden** verstrichen. Maschinenlesbarer Beleg: `verification/aufgabe-06/phase-timing.json` und Zeitzeile in `measurements.csv`. Branch-Vorbereitung sowie anschließender Commit, Push und Draft-PR-Veröffentlichung sind aus dieser Phase ausgeschlossen. Kein Merge, kein produktives Firebase-Deployment und keine Änderung produktiver Security Rules.
+
+<a id="nachbesserung-anzeigename"></a>
+
+## Nachbesserung vom 04.11.2026: Anzeigenamen bearbeiten und speichern
+
+### Manueller Auslöser und zusätzliche Interaktion
+
+**Auslöser war der manuelle Hinweis der Entwicklerin:** Bei einem Konto ohne Anzeigenamen erschien „Kein Name hinterlegt“, aber das Namensfeld war schreibgeschützt und es gab keinen Speicherweg. Die ursprüngliche Interpretation des statischen Figma-Profils hatte die Anzeige umgesetzt, jedoch diesen alltäglichen Benutzerablauf nicht berücksichtigt. Die bisherigen automatisierten Tests erwarteten sogar ein schreibgeschütztes Namensfeld; erfolgreiche Tests allein konnten die Usability-Lücke deshalb nicht aufdecken.
+
+Diese Nachbesserung ist eine **zusätzliche Codex-Interaktion und zusätzlicher Korrekturaufwand**, keine nachträgliche Verkürzung oder Ersetzung der ursprünglichen Aufgabe. Ausgang ist Commit `5b874088d3bb04060200a7f505cda0ce2ba2a4fa` auf demselben Branch `feat/aufgabe-06-figma-dashboard-profile`; die Korrektur aktualisiert Draft PR #6. Separate Messung: **04.11.2026, 08:34:52–08:58:24 UTC / 09:34:52–09:58:24 Europe/Berlin**, tatsächlich **23 Minuten 32 Sekunden (1.412 Sekunden)** nach Prüfung des sauberen Arbeitsbaums. Die ursprünglichen **21 Minuten 46 Sekunden**, die damalige `phase-timing.json` und damalige Nachweise bleiben erhalten.
+
+### Ursache und technische Lösung
+
+1. Das Namensfeld ist im angemeldeten Produktivpfad bearbeitbar. Ein ausdrücklich sichtbarer **„Namen speichern“**-Button sendet Änderungen; ungespeicherte Eingaben ändern weder die bestätigte Profilanzeige noch den Avatar. Das E-Mail-Feld bleibt schreibgeschützt. Es gibt keine E-Mail-/Passwortänderung und keinen Profilbild-Upload.
+2. `AuthProvider.updateDisplayName` normalisiert und validiert erneut und ruft ausschließlich die offizielle Funktion **`updateProfile(user, { displayName })`** auf. Es wird keine Firestore-Profilsammlung angelegt. Der Ziel-User muss vor dem Aufruf dem vom Auth-Observer bestätigten aktuellen User entsprechen; nach dem Await wird nochmals die Identität des aktuellen SDK-Users geprüft.
+3. Firebase `User` ist ein veränderbares SDK-Objekt. `updateProfile` kann dessen `displayName` ändern, ohne für dieselbe UID erneut `onAuthStateChanged` auszulösen. Auch `setUser(dasselbeObjekt)` wäre wegen gleicher Referenz kein verlässlicher React-Trigger. Deshalb erhöht der Provider nach Erfolg eine **explizite Profilrevision**, die einen neuen memoisierten Context-Wert publiziert. Der originale Firebase-User wird nicht kopiert oder durch ein gewöhnliches JavaScript-Objekt ersetzt.
+4. `TasksPanel` liest bei diesem Context-Update die bestätigte Identität neu und reicht sie über `TaskWorkspace` an das gemeinsame Layout und die Ansichten. UID-Schlüssel und das nach UID memoierte Repository bleiben stabil. Profilname, Desktop-Sidebar, beide Initialen-Avatare und Dashboard-Begrüßung aktualisieren sich sofort; ein Task-Reload oder Seiten-Reload ist dafür nicht erforderlich.
+5. Ein synchroner Formular-Ref-Lock und ein zusätzlicher Provider-Lock verhindern doppelte gleichzeitige Speicheraktionen. **`savingDisplayName` liegt auch im Auth-Kontext** und wird bis zum Formular weitergereicht. Dadurch bleiben Feld und Speicherbutton selbst nach Profil → Dashboard → Profil bis zur Bestätigung gesperrt. Der lokale Zustand schützt zusätzlich gegen schnelle Submit-Ereignisse vor dem nächsten React-Render.
+6. Das Formular zeigt Validierungsfehler mit Feldfokus, Pending-Zustand, SDK-/Sitzungsfehler und erst nach erfolgreichem Await „Name gespeichert.“. Eingabeänderungen löschen alte Rückmeldungen. Generation-/Unmount-Prüfung verhindert eine verspätete lokale Meldung in einem neu geöffneten Profil oder einem anderen Konto. Das Profil-Abmelden ist während eigener Speicherung deaktiviert; ein unabhängig ausgelöster Logout/Kontowechsel wird trotzdem sicher behandelt.
+
+Validierung: Unicode-Leerraum nur am Anfang/Ende entfernen, keinen ausschließlich aus Leerraum bestehenden Namen zulassen, höchstens **100 Unicode-Codepoints** nach Normalisierung. Bindestriche, Apostrophe, Akzente und andere Schriftsysteme sind erlaubt; innere Schreibweise wird erhalten. Das HTML-Feld erlaubt bis zu 200 UTF-16-Codeunits, damit auch 100 Zeichen außerhalb der BMP eingegeben werden können; die maßgebliche 100-Codepoint-Grenze prüft der gemeinsame Validator im Formular und im Provider. Codepoints sind keine typografischen Graphemcluster: etwa kombinierte Akzente können mehrere Codepoints zählen.
+
+Der gemeinsame Helper `identityInitials` verwendet die ersten Codepoints der ersten zwei Namenswörter, deutsche Großschreibung sowie E-Mail-/`K`-Fallback. Damit berechnen Profil und Sidebar dieselben Initialen auch bei Unicode-Namen. Der Avatar verwendet weiterhin ausschließlich Initialen des bestätigten Namens. Firebase Storage wird nicht verwendet; ein Profilbild-Upload bleibt mögliche **Future Work**, außerhalb dieser Korrektur.
+
+### Ergänzter FR-/NFR-Stand
+
+| Anforderung | Neuer Stand / Nachweis |
+| --- | --- |
+| FR-09 / FR-12 und manueller Namensablauf | Erstmaliges Setzen und späteres Ändern des eigenen Anzeigenamens über Firebase Authentication implementiert; erfolgreiche Speicherung, sofortige Anzeige und Persistenz real im Auth Emulator geprüft. Frühere N/A-Einordnung von FR-12 gilt für diesen neuen Umfang nicht mehr. |
+| FR-13 und E-Mail | E-Mail bleibt schreibgeschützt, Passwort-/E-Mailänderung und Reauth-Ablauf werden nicht neu angeboten. |
+| Usability | Sichtbare Speicheraktion, Hint und verständliche Rückmeldung statt dauerhaft leerem Read-only-Feld; 1440/390/320 geprüft. Ein einzelner manueller Mangelbericht ist keine vollständige Usability-Studie. |
+| Zuverlässigkeit | Sofortige React-Aktualisierung unabhängig vom Auth-State-Observer, Reload/Login-Persistenz, Fehler ohne falschen Erfolg, Pending bei Navigation und verspäteter Save bei Kontowechsel getestet. |
+| Security | Operation an aktuellen Auth-User gebunden; keine E-Mail-/Passwortänderung, keine neue Sammlung, keine Zugangsdaten in Nachweisen. Guards und bestehende Auth-Funktionen bleiben erhalten. |
+| Performance | In isolierter Messung weiterhin zwei initiale StrictMode-Task-Reads, **null zusätzliche Task-Reads und null Task-Writes** durch Namensänderungen/Navigation. Das sind Repository-Aufrufe im Fixture, keine echte Firestore-Kostenmessung. |
+| Wartbarkeit | Reiner gemeinsamer Namensvalidator und Initialen-Helper, eine zentrale Auth-Mutation und wiederverwendetes Layout. Keine parallele Task-CRUD- oder Profildatenbank. |
+| Skalierbarkeit | Unveränderte O(N)-Taskladegrenze und O(M log M)-Sortierung; keine neue Last- oder Million-User-Abnahme durch diese Korrektur. |
+
+### Geänderte Dateien der Nachbesserung
+
+| Datei | Änderung |
+| --- | --- |
+| `src/auth/AuthProvider.tsx` | Neue Auth-Mutation, Profilrevision, globaler Pending-Zustand, Lock und Sitzungsprüfung. Registrierung, Login, Logout und Reset bleiben in ihrem Verhalten unverändert. |
+| `src/auth/displayName.ts` | Neuer reiner Validator und Normalisierer mit gemeinsamem 100-Codepoint-Limit. |
+| `src/layout/identity.ts`, `AppLayout.tsx` | Gemeinsame Unicode-korrekte Initialen für Sidebar und Profil. |
+| `src/tasks/TasksPanel.tsx`, `TaskWorkspace.tsx` | Speichercallback und globalen Pending-Zustand weiterreichen; keine neuen Datenzugriffe. |
+| `src/profile/ProfileView.tsx`, `profile.css` | Namensformular mit Zustand, Validierung, Fokus, Rückmeldungen und Speicherbutton. |
+| `tests/display-name.test.ts` | Sechs neue Unit-Gruppen für Validierung, Normalisierung und Initialen. |
+| `tests/browser-profile-name.py`, `tests/fixtures/profile-name.html`, `profile-name.tsx` | Neue ausdrücklich isolierte UI-/Callback-Prüfung mit Task-Aufrufzählern und Navigation während Pending. |
+| `tests/browser-display-name-auth.py` | Neue echte Auth-Emulator-Browserintegration einschließlich Persistenz und verzögertem Save bei Kontowechsel. |
+| `tests/browser-auth.py` | Alte Name-readOnly-Erwartungen aktualisiert; E-Mail bleibt readOnly; Testverkehr gegen unbeabsichtigte externe Requests abgesichert. |
+| Dokumentation und `*/aufgabe-06/name-fix/` | Eigene Nachweise, Screenshots, Messdaten und separate Korrekturzeit; ursprüngliche Nachweise nicht überschrieben. |
+
+Der produktive `TasksPanel` übergibt den Speichercallback immer. Der optionale Callback erlaubt bestehenden isolierten Einbettungen ohne Auth-Adapter weiterhin eine schreibgeschützte Anzeige; diese Legacy-Fixtures sind **kein Nachweis der neuen Speicherfunktion**. Dafür existieren die neue bearbeitbare Callback-Suite und die getrennte echte Auth-Integration.
+
+### Tatsächlich ausgeführte Tests der Nachbesserung
+
+| Prüfung | Ergebnis / Umgebung |
+| --- | --- |
+| `npm run typecheck` | Erfolgreich. |
+| `npm run build` | Erfolgreich; keine neue Chunkgrößenwarnung. |
+| `npm test` | **36/36** Gruppen bestanden: die bisherigen 30 plus sechs neue Namens-/Initialengruppen. Unicode-Leerraum, 100/101 ASCII-/Unicode-Codepoints, legitime Namen, Fehlercode und Avatar-Fallbacks abgedeckt. |
+| `python3 tests/browser-profile-name.py` | **7/7** isolierte Gruppen: Entwurf ohne Identitätsänderung, Validierung vor API, 100 Emoji, Enter/Doppelsubmit, Fehler/Retry ohne falschen Erfolg, sofortige Anzeige, native Assets und Responsive, Pending-Sperre nach Profil-Navigation. Zähler zwei Task-Reads → zwei, null Task-Writes. Fünf simulierte Speicherversuche, vier Erfolge, ein absichtlicher Netzwerkfehler. |
+| `python3 tests/browser-display-name-auth.py` | **14/14** Gruppen mit echtem Firebase-Auth-SDK gegen lokalen Auth Emulator: erstmaliger Name, Bearbeiten, sofortige Anzeige auf allen Flächen, Reload, Logout und erneutes Login, Grenze, Pending nach Seitenwechsel, exakt ein `accounts:update` bei schnellen Submits, abgebrochener Update-Request und echter Kontowechsel während verzögerter Antwort. Keine unbehandelten Seitenfehler. |
+| Bestehende Auth-Regression | Auth-SDK **12/12**, Auth-Browser **19/19** erneut bestanden; bestehende Anmelde-/Registrierungs-/Reset-/Logout-/Zugriffsschutzabläufe erhalten. |
+| Bestehende Aufgaben-/Kalenderregression | **6/6** Aufgaben-/Navigation und **5/5** Kalender bestanden, mit ausdrücklich isolierten Repositorys. |
+| Bestehende Dashboard-/Profilregression | **6/6** inklusive 54/1.000 Aufgaben bestanden; das ältere Fixture ohne Speichercallback bleibt bewusst readOnly. |
+| Git-Abgleich | TaskRepository, Task-Queries/-Hook, Kalender, Firebase-Konfiguration, Rules, Dependencies und ursprüngliche Zeitnachweise unverändert. |
+
+Reproduktion mit Vite auf 5185 und lokalem Auth Emulator auf 9099:
+
+```sh
+npm run typecheck
+npm run build
+npm test
+python3 tests/browser-profile-name.py
+npm run test:auth:integration
+AUTH_BROWSER_BASE_URL=http://127.0.0.1:5185/ DISPLAY_NAME_BROWSER_OUT=work/aufgabe-06-name-fix/display-name-browser-final python3 tests/browser-display-name-auth.py
+AUTH_BROWSER_BASE_URL=http://127.0.0.1:5185/ AUTH_BROWSER_OUT=work/aufgabe-06-name-fix/auth-browser-final python3 tests/browser-auth.py
+TASKS_BROWSER_BASE_URL=http://127.0.0.1:5185/ TASKS_BROWSER_OUT=work/aufgabe-06-name-fix/tasks-browser python3 tests/browser-tasks.py
+```
+
+Für Kalender und die ältere Dashboard-/Profil-Suite wurde nur der Ausgabeordner im Speicher nach `work/aufgabe-06-name-fix/` umgeleitet. Die jeweiligen Testdateien und damaligen Screenshots wurden erhalten. Neue zusammengehörige Prüfbelege liegen in `verification/aufgabe-06/name-fix/`, isolierte neue Namensscreenshots und Messungen in `visual/aufgabe-06/name-fix/`.
+
+**Testgrenzen:** Auth Emulator und isolierter Callback sind getrennte Umgebungen. Nur der echte Auth-Test belegt die SDK-/Observer-Verkabelung und Persistenz; das Fixture belegt gezielt UI- und Repository-Aufrufverhalten. Kein produktives Firebase getestet. Der Firestore-Emulator blieb bei dieser reinen Auth-Nachbesserung deaktiviert; es wurde kein weiterer JAR-Download versucht und keine Firestore-Abnahme behauptet. Bei unerreichbarem Firestore veranlasst der vorhandene WebChannel-Code Konnektivitätsproben zu `www.google.com/images/cleardot.gif`; die Auth-Browsertests blockieren diese vor dem Netzwerk und dokumentieren die Versuche separat. Andere Off-Origin-Versuche lassen die Suite fehlschlagen.
+
+### Visuelle/Responsive-Prüfung und begründete Layoutänderung
+
+Die bestehende Figma-Gestaltung bleibt Grundlage; die manuell angeforderte Speicherfunktion erweitert bewusst den früher statischen Entwurf. Profilkarte, Farben, Typografie, 60-px-Avatar, Initialen und 48-px-Eingabefeld bleiben erhalten. Es wurden keine neuen Fremdassets oder generierten Figma-Make-Elemente verwendet. Der neue 48-px-Speicherbutton und seine Hinweise benötigen zusätzliche Höhe; ein unveränderter Vergleich zur alten statischen Gesamthöhe wäre daher irreführend.
+
+| Breite | Neue Profilkarte, isolierter Standardzustand | Namensfeld / Speicherbutton |
+| --- | --- | --- |
+| 1440 px | x376/y134, **600 × 647** | Feld x400/y304, 552 × 48; Button y394, 552 × 48. |
+| 390 px | x20/y104, **350 × 696** | Feld x44/y274, 302 × 48; Button y382, 302 × 48. |
+| 320 px | x16/y104, **288 × 697** | Feld x36/y270, 248 × 48; Button y378, 248 × 48. |
+
+Der Beginn des Namensfelds bleibt damit gegenüber der ursprünglichen Profilansicht an derselben Position. E-Mail, Fortschritt und Logout rücken unter den Speicherbereich. Die Kartenhöhen wachsen gegenüber dem ursprünglichen isolierten Standardbild um 108/126/126 px; Daten und Rückmeldungen können zusätzliche Umbrüche erzeugen. Bei 1440/390/320 px wurde kein horizontaler Überlauf festgestellt, sowohl isoliert als auch im echten Auth-Test. Es wird keine erneute vollständige Pixelidentität behauptet.
+
+Isolierte Screenshots mit synthetischem, bestätigt gespeichertem Namen „Nora Winter“, `name-ui@example.test` und einer synthetischen Aufgabe: [1440 px](visual/aufgabe-06/name-fix/profile-name-1440.png), [390 px](visual/aufgabe-06/name-fix/profile-name-390.png), [320 px](visual/aufgabe-06/name-fix/profile-name-320.png), [Pending](visual/aufgabe-06/name-fix/profile-name-pending-1440.png), [Netzwerkfehler](visual/aufgabe-06/name-fix/profile-name-error-1440.png). Diese Daten sind kein Produktivbestand. Die Testuhr ist nur im Fixture auf den Figma-Referenztag gesetzt.
+
+### Reviewkorrekturen, Automatisierungsgrenzen und verbleibendes Risiko
+
+- Der manuelle Hinweis der Entwicklerin ergänzte einen fehlenden Benutzerablauf. Die ursprüngliche automatische Read-only-Abnahme war für diesen Ablauf nicht ausreichend; der Korrekturprompt ist ein beobachteter manueller Eingriff in der Fallstudie.
+- Der Review reproduzierte zunächst einen Entwurfsverlust beim Verlassen und erneuten Öffnen des Profils während einer alten Speicherung. Der neue Formularmount wusste nichts vom laufenden Request. Der globale Pending-Zustand behebt dies; isolierter und echter Auth-Test prüfen die Sperre nach Rückkehr ausdrücklich.
+- Im Testharness kollidierten zunächst zwei Request-Interceptor beim verzögerten Kontowechsel. Ein gemeinsamer Context-Handler ersetzt die Überlagerung. Außerdem wurde die bereits vorhandene, blockierte Firestore-Konnektivitätsprobe von echten unerwünschten Auth-Requests unterschieden. Es wurden keine Testerfolge aus den vorher fehlgeschlagenen Läufen übernommen.
+- Der Netzwerkfehlertest zeigt einen Fehler ohne falschen Erfolg und bestätigt nach Reload den vorherigen Namen **für den absichtlich abgebrochenen Request**. Daraus folgt kein allgemeines Rollback-Versprechen: Ein bereits vom Server angenommener Save kann bei verlorener Antwort oder späterem lokalem Persistenzfehler trotzdem gespeichert sein.
+- Bei Logout/Kontowechsel kann ein bereits abgesendeter Request das ursprüngliche Konto noch ändern; er wird nicht zurückgerollt. Geprüft wird, dass er weder den Namen des neuen Kontos überschreibt noch dort eine Erfolgsmeldung erzeugt. Der Provider-Lock kann das neue Konto kurz bis zum Ende dieses Requests am erneuten Speichern hindern.
+- Eine externe Namensänderung aus einem anderen Gerät wird weiterhin nicht als sofort live synchronisiert zugesichert. Eigene Speicherung, Reload und erneutes Login sind ausdrücklich geprüft. Kein Profilbild-Upload, keine Storage-Anbindung, kein Merge oder Deployment und keine Änderung produktiver Security Rules.
+
+### Separate Nachbesserungsdauer
+
+Beginn **04.11.2026, 08:34:52 UTC / 09:34:52 Europe/Berlin**, Ende nach Implementierung, Tests, Screenshot-/Belegprüfung und Dokumentationsreview **08:58:24 UTC / 09:58:24 Europe/Berlin**. Tatsächlich zusätzliche Dauer: **23 Minuten 32 Sekunden = 1.412 Sekunden**. Parallel ausgeführte Agentenarbeit und Wartezeiten sind in dieser verstrichenen Gesamtzeit enthalten; Agentenzeiten werden nicht addiert. Commit/Push/PR-Aktualisierung zählen anschließend zur Veröffentlichung. Die ursprüngliche Dauer bleibt **21 Minuten 46 Sekunden (1.306 Sekunden)** und wird nicht überschrieben. Separate maschinenlesbare Zeit- und Excel-Nachweise: `verification/aufgabe-06/name-fix/phase-timing.json` und `measurements.csv`.

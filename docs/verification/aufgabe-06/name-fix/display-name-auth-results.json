@@ -1,0 +1,130 @@
+{
+  "scope": "Real Firebase Auth SDK, local demo Auth emulator only; no successful Firestore integration claimed",
+  "checks": [
+    {
+      "check": "A real nameless Auth account starts with editable name, readonly email and account fallback",
+      "status": "passed"
+    },
+    {
+      "check": "Whitespace-only and 101-character names are rejected before any accounts:update request",
+      "status": "passed"
+    },
+    {
+      "check": "Saving trims surrounding whitespace and immediately refreshes profile, sidebar, both avatars and dashboard without reload",
+      "status": "passed"
+    },
+    {
+      "check": "Saved displayName survives a browser reload",
+      "status": "passed"
+    },
+    {
+      "check": "Saved displayName survives logout and a fresh UI login",
+      "status": "passed"
+    },
+    {
+      "check": "Editing an existing displayName refreshes all identity surfaces",
+      "status": "passed"
+    },
+    {
+      "check": "The 100-character boundary is accepted and can be changed back",
+      "status": "passed"
+    },
+    {
+      "check": "Pending state survives profile navigation and rapid repeated submissions make exactly one accounts:update request",
+      "status": "passed"
+    },
+    {
+      "check": "Aborted Auth update shows an error without success and leaves the saved identity unchanged after reload",
+      "status": "passed"
+    },
+    {
+      "check": "A delayed save from the previous account cannot overwrite the next account identity or report success there",
+      "status": "passed"
+    },
+    {
+      "check": "Both accounts retain their own saved names after account switching",
+      "status": "passed"
+    },
+    {
+      "check": "Editable profile has no horizontal overflow at 1440, 390 and 320 pixels",
+      "status": "passed"
+    },
+    {
+      "check": "Auth uses loopback; off-origin Firestore connectivity probes are blocked and no uncaught JavaScript errors occur",
+      "status": "passed"
+    },
+    {
+      "check": "Only this run's temporary Auth emulator accounts are deleted",
+      "status": "passed"
+    }
+  ],
+  "passed": 14,
+  "pageErrors": [],
+  "externalRequestOrigins": [
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    },
+    {
+      "origin": "www.google.com",
+      "path": "/images/cleardot.gif",
+      "blocked": true
+    }
+  ],
+  "accountsUpdateRequests": 8,
+  "responsive": [
+    {
+      "width": 1440,
+      "height": 900,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "height": 812,
+      "horizontalOverflow": false
+    }
+  ],
+  "screenshots": [
+    "name-saving-desktop.png",
+    "name-network-error-mobile.png",
+    "profile-name-1440.png",
+    "profile-name-390.png",
+    "profile-name-320.png"
+  ]
+}

@@ -15,8 +15,8 @@ import { statusLabels, taskErrorMessage, taskStatuses } from './model'
 import type { Task, TaskInput, TaskStatus } from './model'
 const DashboardView = lazy(() => import('../dashboard/DashboardView').then(module => ({ default: module.DashboardView })))
 const ProfileView = lazy(() => import('../profile/ProfileView').then(module => ({ default: module.ProfileView })))
-interface Props { repository: TaskRepository | null; view?: AppView; identity?: AppIdentity; onLogout?: () => void; loggingOut?: boolean; logoutError?: string }
-export function TaskWorkspace({ repository, view = 'tasks', identity, onLogout = () => {}, loggingOut = false, logoutError }: Props) {
+interface Props { repository: TaskRepository | null; view?: AppView; identity?: AppIdentity; onSaveDisplayName?: (name: string) => Promise<void>; savingDisplayName?: boolean; onLogout?: () => void; loggingOut?: boolean; logoutError?: string }
+export function TaskWorkspace({ repository, view = 'tasks', identity, onSaveDisplayName, savingDisplayName, onLogout = () => {}, loggingOut = false, logoutError }: Props) {
   const { tasks, loading, error, reload } = useTasks(repository)
   const [calendar, setCalendar] = useState(initialCalendarSelection)
   const [editor, setEditor] = useState<Task | 'new' | null>(null)
@@ -64,7 +64,7 @@ export function TaskWorkspace({ repository, view = 'tasks', identity, onLogout =
   const deletion = deleting && <DeleteTaskDialog task={deleting} pending={pending} error={mutationError} onCancel={() => { setDeleting(null); setMutationError(''); focusHeading() }} onConfirm={() => { if (repository) void mutate(() => repository.remove(deleting.id), 'Aufgabe gelöscht.') }} />
   const body = <div ref={content} className="workspace-content">
     {!identity && <div className="tasks-heading"><h1 data-page-heading tabIndex={-1}>{title}</h1><button className="primary-button" disabled={addDisabled} onClick={() => begin('new')}>Aufgabe hinzufügen</button></div>}
-    {view === 'profile' ? <ProfileView identity={identity ?? { displayName: null, email: null }} tasks={tasks} loading={loading} error={error} onReload={() => void reload()} onLogout={onLogout} loggingOut={loggingOut} logoutError={logoutError} />
+    {view === 'profile' ? <ProfileView identity={identity ?? { displayName: null, email: null }} tasks={tasks} loading={loading} error={error} onReload={() => void reload()} onSaveDisplayName={onSaveDisplayName} savingDisplayName={savingDisplayName} onLogout={onLogout} loggingOut={loggingOut} logoutError={logoutError} />
     : view === 'calendar' ? <>{status}{deletion}<CalendarView tasks={tasks} loading={loading} error={error} value={calendar} onChange={setCalendar} renderTasks={list} /></>
     : editor ? <><button className="back-link" onClick={closeEditor}><Icon name="back" />Zurück zu Aufgaben</button><TaskForm key={editor === 'new' ? 'new' : editor.id} initial={editor === 'new' ? undefined : editor} onSave={save} onCancel={closeEditor} /></>
     : view === 'dashboard' ? <>{status}{deletion}<DashboardView tasks={tasks} loading={loading} error={error} identity={identity} renderTasks={list} onAdd={() => begin('new')} addDisabled={addDisabled} /></>

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Icon } from './Icon'
+import { identityInitials } from './identity'
 export type AppView = 'dashboard' | 'tasks' | 'calendar' | 'profile'
 export interface AppIdentity { email: string | null; displayName: string | null }
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 }
 export function AppLayout({ view, title, identity, openCount, children, onAdd, addDisabled, search, onSearch, onLogout, loggingOut }: Props) {
   const name = identity.displayName?.trim() || identity.email || 'Dein Konto'
-  const initials = (identity.displayName?.trim().split(/\s+/).map(part => part[0]).slice(0, 2).join('') || identity.email?.slice(0, 1) || 'K').toUpperCase()
+  const initials = identityInitials(identity.displayName, identity.email)
   const date = new Intl.DateTimeFormat('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()).toLocaleUpperCase('de')
   const links = [{ view: 'dashboard', label: 'Übersicht' }, { view: 'tasks', label: 'Aufgaben' }, { view: 'calendar', label: 'Kalender' }] as const
   const taskContext = view === 'tasks'

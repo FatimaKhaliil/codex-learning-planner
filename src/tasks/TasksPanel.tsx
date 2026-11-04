@@ -5,7 +5,7 @@ import type { AppView } from '../layout/AppLayout'
 import { tasksForUser } from './firebaseTasks'
 import { TaskWorkspace } from './TaskWorkspace'
 export function TasksPanel({ userId, view }: { userId: string; view: AppView }) {
-  const { user, logout } = useAuth()
+  const { user, logout, updateDisplayName, savingDisplayName } = useAuth()
   const [loggingOut, setLoggingOut] = useState(false)
   const [logoutError, setLogoutError] = useState('')
   const repository = useMemo(() => { try { return tasksForUser(userId) } catch { return null } }, [userId])
@@ -15,5 +15,5 @@ export function TasksPanel({ userId, view }: { userId: string; view: AppView }) 
     try { await logout() } catch (cause) { setLogoutError(authErrorMessage(cause)) } finally { setLoggingOut(false) }
   }
   if (!user) return null
-  return <TaskWorkspace key={userId} repository={repository} view={view} identity={{ email: user.email, displayName: user.displayName }} onLogout={() => void signOut()} loggingOut={loggingOut} logoutError={logoutError} />
+  return <TaskWorkspace key={userId} repository={repository} view={view} identity={{ email: user.email, displayName: user.displayName }} onSaveDisplayName={updateDisplayName} savingDisplayName={savingDisplayName} onLogout={() => void signOut()} loggingOut={loggingOut} logoutError={logoutError} />
 }

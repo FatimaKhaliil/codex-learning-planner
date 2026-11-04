@@ -1,5 +1,6 @@
 import asyncio, json, os, secrets, uuid
 from pathlib import Path
+from urllib.parse import urlparse
 from playwright.async_api import async_playwright, expect
 
 OUT=Path(os.environ.get('AUTH_BROWSER_OUT','work/aufgabe-04-implementation/auth-browser'))
@@ -14,6 +15,15 @@ async def main():
   async with async_playwright() as p:
     browser=await p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,timeout=15000,args=['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote'])
     context=await browser.new_context(viewport={'width':1440,'height':800})
+    blocked_requests=[]
+    async def local_only(route):
+      if route.request.url.startswith(('http://127.0.0.1:','http://localhost:')):
+        await route.continue_()
+      else:
+        parsed=urlparse(route.request.url)
+        blocked_requests.append({'origin':parsed.netloc,'path':parsed.path,'blocked':True})
+        await route.abort('blockedbyclient')
+    await context.route('**/*',local_only)
     page=await context.new_page()
     errors=[]
     page.on('pageerror',lambda error: errors.append(str(error)))
@@ -109,11 +119,11 @@ async def main():
       await expect(page.get_by_role('heading',name='Dein Profil',exact=True)).to_be_visible()
       await expect(page.locator('#profile-email')).to_have_value(email)
       await expect(page.locator('#profile-name')).to_have_value('')
-      for field in ['profile-name','profile-email']:
-        assert await page.locator('#'+field).evaluate('(element) => element.readOnly')
+      assert not await page.locator('#profile-name').evaluate('(element) => element.readOnly')
+      assert await page.locator('#profile-email').evaluate('(element) => element.readOnly')
       await page.locator('.profile-view').get_by_role('button',name='Abmelden',exact=True).click()
       await expect(page.get_by_role('heading',name='Willkommen zurück')).to_be_visible()
-      results.append({'check':'Real profile identity and readonly fields; mobile logout and no horizontal overflow','status':'passed'})
+      results.append({'check':'Real profile identity, editable name and readonly email; mobile logout and no horizontal overflow','status':'passed'})
       await page.get_by_role('link',name='Passwort vergessen?').click()
       await expect(page.get_by_role('heading',name='Passwort zurücksetzen',exact=True)).to_be_visible()
       await page.locator('#email').fill(email)
@@ -158,8 +168,8 @@ async def main():
       await expect(page.locator('#profile-name')).to_have_value(second_name)
       await expect(page.locator('#profile-email')).to_have_value(second_email)
       await expect(page.locator('.profile-identity-copy strong')).to_have_text(second_name)
-      for field in ['profile-name','profile-email']:
-        assert await page.locator('#'+field).evaluate('(element) => element.readOnly')
+      assert not await page.locator('#profile-name').evaluate('(element) => element.readOnly')
+      assert await page.locator('#profile-email').evaluate('(element) => element.readOnly')
       await expect(page.get_by_text(email,exact=True)).to_have_count(0)
       await page.reload(wait_until='networkidle')
       await expect(page.locator('#profile-name')).to_have_value(second_name)
@@ -206,6 +216,7 @@ async def main():
           visual.append({'mode':mode,'viewport':{'width':w,'height':h},'mobileEmulation':mobile,**metrics})
         await c.close()
       results.append({'check':'Nine responsive views have no horizontal overflow and all local image assets load','status':'passed'})
+      assert all(request=={'origin':'www.google.com','path':'/images/cleardot.gif','blocked':True} for request in blocked_requests)
       assert not errors, errors
       results.append({'check':'No uncaught application JavaScript errors during flows','status':'passed'})
     finally:
@@ -224,7 +235,7 @@ async def main():
       await browser.close()
     assert cleanup_success
     results.append({'check':'Only this run’s temporary Auth emulator accounts are deleted','status':'passed'})
-    OUT.joinpath('results.json').write_text(json.dumps({'browser':'Chromium','scope':'Real Firebase SDK against local Auth Emulator; no production email delivery','checks':results,'visual':visual,'pageErrors':errors},indent=2)+'\n')
+    OUT.joinpath('results.json').write_text(json.dumps({'browser':'Chromium','scope':'Real Firebase SDK against local Auth Emulator; no production email delivery','checks':results,'visual':visual,'pageErrors':errors,'blockedOffOriginRequests':blocked_requests},indent=2)+'\n')
     print('TOTAL PASSED: '+str(len(results)),flush=True)
 
 try:
