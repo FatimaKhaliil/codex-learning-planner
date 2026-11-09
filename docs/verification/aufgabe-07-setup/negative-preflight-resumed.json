@@ -1,0 +1,18 @@
+{
+  "kind": "real-auth-emulator-negative-setup-smoke",
+  "observedAtUtc": "2026-11-09T08:08:35.383Z",
+  "projectId": "demo-learning-planner",
+  "authUrl": "http://127.0.0.1:9099",
+  "firestoreUrl": "http://127.0.0.1:8081",
+  "authReady": true,
+  "hubFirestoreRegistered": false,
+  "seedExit": 1,
+  "error": "evaluation/emulator-unavailable",
+  "baselineAccountCountBefore": 0,
+  "baselineAccountCountAfter": 0,
+  "accountFileCreated": false,
+  "baselineFileCreated": false,
+  "limits": [
+    "Real Auth emulator and real CLI preflight; no positive seed, login or Firestore integration demonstrated."
+  ]
+}

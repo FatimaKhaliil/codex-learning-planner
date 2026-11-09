@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 
 # Local implementation logs
 work/
+
+# Isolated local evaluation configuration, manifests and emulator state.
+.evaluation/

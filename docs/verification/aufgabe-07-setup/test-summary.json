@@ -1,0 +1,73 @@
+{
+  "kind": "setup-verification-summary",
+  "phase": "resumed-after-usage-limit",
+  "date": "2026-11-09",
+  "baseCommit": "e8f506cb450b83182f41fdcbb4ed8dacd737ae94",
+  "branch": "eval/aufgabe-07-setup",
+  "checks": {
+    "npmTest": {
+      "exitCode": 0,
+      "tests": 62,
+      "passed": 62,
+      "failed": 0,
+      "skipped": 0,
+      "classification": "Unit tests, actual Vite resolution with synthetic temp env files, and isolated transport doubles; no successful Firestore integration."
+    },
+    "typecheck": {
+      "exitCode": 0,
+      "via": "npm run build invokes npm run typecheck"
+    },
+    "build": {
+      "command": "npm run build",
+      "exitCode": 0,
+      "modules": 70,
+      "rootProductionEnvFilesPresent": false,
+      "firebaseServicesContactedByBuild": false
+    },
+    "realBrowserSetup": {
+      "status": "passed",
+      "evidence": "browser-setup-resumed.json"
+    },
+    "realAuthNegativePreflight": {
+      "status": "passed",
+      "evidence": "negative-preflight-resumed.json"
+    },
+    "realFirestorePositiveSeedResetSdkCrud": {
+      "status": "blocked",
+      "jarVersionRequestedPreviously": "1.22.0",
+      "cachedJarFound": false,
+      "additionalDownloadAttemptsOnResume": 0,
+      "attemptedCommand": "npm run test:tasks:integration",
+      "exitCode": 1,
+      "failure": "ECONNREFUSED 127.0.0.1:8081",
+      "firestoreTestGroupsReached": 0
+    },
+    "envLocal": {
+      "existedBeforeInterruption": false,
+      "existsAfterResume": false,
+      "read": false,
+      "modified": false
+    },
+    "unchangedFiles": [
+      "firestore.rules",
+      "package-lock.json",
+      "docs/aufgabe-07-evaluationsplan.md",
+      "docs/aufgabe-07-ergebnisse-vorlage.csv"
+    ],
+    "evaluationCsvDataRows": 0,
+    "safetyReview": "Read-only code review completed without an open blocker; no proof of positive Firestore persistence.",
+    "realAuthSdkIntegration": {
+      "status": "passed",
+      "command": "node tests/auth-emulator.mjs",
+      "passed": 12,
+      "total": 12,
+      "evidence": "auth-sdk-resumed.json",
+      "temporaryAccountDeleted": true
+    }
+  },
+  "limitations": [
+    "Actual Windows execution is pending.",
+    "No Nielsen, Cognitive Walkthrough or accessibility evaluation performed.",
+    "Auth SDK integration is independent of React. No positive React/Firestore data path or Firestore persistence is claimed."
+  ]
+}
