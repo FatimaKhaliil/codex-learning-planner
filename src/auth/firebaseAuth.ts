@@ -1,6 +1,7 @@
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
 import type { Auth } from 'firebase/auth'
 import { firebaseApp, firebaseConfigurationError } from '../lib/firebase'
+import { assertEvaluationAuthBinding, assertEvaluationEnv, evaluationMode } from '../../config/evaluation-policy'
 
 function initializeAuthentication(): { auth: Auth | null; configurationError: string | null } {
   if (!firebaseApp) {
@@ -11,7 +12,10 @@ function initializeAuthentication(): { auth: Auth | null; configurationError: st
   }
 
   try {
+    const evaluating = import.meta.env.MODE === evaluationMode
+    if (evaluating) assertEvaluationEnv(import.meta.env, import.meta.env.DEV === true)
     const auth = getAuth(firebaseApp)
+    if (evaluating && auth.app !== firebaseApp) throw new Error('invalid-evaluation-auth-binding')
     auth.languageCode = 'de'
 
     const emulatorAddress = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_URL
@@ -31,6 +35,7 @@ function initializeAuthentication(): { auth: Auth | null; configurationError: st
 
       // HMR must not connect the same Auth instance to the emulator twice.
       if (!auth.emulatorConfig) connectAuthEmulator(auth, emulator.origin)
+      if (evaluating) assertEvaluationAuthBinding(auth, firebaseApp)
     }
 
     return { auth, configurationError: null }

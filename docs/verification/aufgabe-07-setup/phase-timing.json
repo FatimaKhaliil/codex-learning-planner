@@ -1,0 +1,22 @@
+{
+  "kind": "codex-setup-interaction-timing",
+  "interruption": "User reported usage-limit interruption; elapsed days are not counted as work.",
+  "phaseBeforeInterruption": {
+    "startedAtUtc": "2026-11-05T13:40:06Z",
+    "lastRetainedClockAtUtc": "2026-11-05T14:06:47Z",
+    "observedIntervalSeconds": 1601,
+    "completeDurationKnown": false,
+    "unmeasuredTail": "unknown"
+  },
+  "resumedPhase": {
+    "startedAtUtc": "2026-11-09T08:02:27.000Z",
+    "workspaceReadyAndFirstGitChecksAtUtc": "2026-11-09T08:04:55.000Z",
+    "measuredEndAtUtc": "2026-11-09T08:15:45.000Z",
+    "elapsedSeconds": 798,
+    "preWorkspaceIntervalSeconds": 148,
+    "afterWorkspaceReadySeconds": 650,
+    "excludes": "Final timing entry, git commit, push and pull-request publication."
+  },
+  "exactTotalWorkDurationKnown": false,
+  "definition": "Elapsed interaction intervals including tool runtimes; not CPU or pure editing time."
+}

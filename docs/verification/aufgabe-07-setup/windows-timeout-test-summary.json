@@ -1,0 +1,40 @@
+{
+  "kind": "windows-timeout-diagnosis-verification",
+  "baseCommit": "b070f93a11a1b0213526b6293921abd0fe23e15f",
+  "branch": "eval/aufgabe-07-setup",
+  "tests": {
+    "command": "npm test",
+    "passed": 80,
+    "total": 80,
+    "failed": 0,
+    "skipped": 0,
+    "addedCliProcessTests": 3,
+    "addedTransportDoubleTestsIncludingSubtests": 15
+  },
+  "build": {
+    "command": "npm run build",
+    "exitCode": 0,
+    "includesTypecheck": true
+  },
+  "originalTransportProof": "windows-timeout-transport-repro.json",
+  "correctedTransportProof": "windows-timeout-deadline-regression.json",
+  "realAuthMissingFirestoreCliSmoke": "windows-timeout-negative-cli.json",
+  "timeoutMs": 3000,
+  "timeoutChangedFrom": "Socket inactivity timeout",
+  "timeoutChangedTo": "Overall HTTP request deadline from before socket assignment",
+  "automaticRetries": false,
+  "unchangedGuards": [
+    "fixed IPv4 loopback and demo project",
+    "request scope allowlist",
+    "emulator and Hub checks",
+    "account and password binding",
+    "preflight before every mutation",
+    "no redirects or environment proxy fallback"
+  ],
+  "limitations": [
+    "Windows root cause remains unconfirmed until the new request diagnostics run there.",
+    "No positive real Firestore integration in this cloud; loopback HTTP test server and transport doubles are not Firebase.",
+    "No production data or actual usability evaluation."
+  ],
+  "envLocalReadOrModified": false
+}

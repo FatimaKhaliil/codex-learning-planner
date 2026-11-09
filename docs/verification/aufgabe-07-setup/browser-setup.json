@@ -1,0 +1,31 @@
+{
+  "kind": "technical-setup-smoke",
+  "browser": "151.0.7922.173",
+  "checks": {
+    "reactLoaded": true,
+    "firebaseSdkEmulatorWiring": {
+      "project": "demo-learning-planner",
+      "demoKey": true,
+      "authHost": "127.0.0.1",
+      "authPort": 9099,
+      "firestoreHost": "127.0.0.1:8081",
+      "firestoreSsl": false
+    },
+    "evaluationCspPresent": true,
+    "externalProbeBlockedByCsp": true,
+    "ignoredDirectoryHttpDenied": [
+      "direct",
+      "import",
+      "raw",
+      "fs"
+    ],
+    "externalRequestsReachedRouting": 0
+  },
+  "observedLocalOrigins": [
+    "127.0.0.1:5187"
+  ],
+  "limitations": [
+    "No login, account creation, Firestore read/write or usability evaluation performed.",
+    "SDK host settings alone do not establish emulator availability or data persistence."
+  ]
+}

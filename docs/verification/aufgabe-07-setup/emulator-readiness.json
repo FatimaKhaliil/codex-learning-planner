@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "scope": "Technical emulator readiness only; not a browser, CRUD or evaluation result.",
+  "observedAtUtc": "2026-11-05T13:58:17.989218+00:00",
+  "projectId": "demo-learning-planner",
+  "versions": {
+    "node": {
+      "observed": "v24.19.0",
+      "command": "node --version"
+    },
+    "java": {
+      "observed": "OpenJDK 21.0.12.1",
+      "command": "java -version",
+      "cliMinimumMajor": 21
+    },
+    "firebaseCli": {
+      "observed": "15.34.2",
+      "source": "Existing work/emulator-tools/node_modules/.bin/firebase; no installation performed.",
+      "command": "firebase --version"
+    },
+    "firestoreEmulator": {
+      "requestedJarVersion": "1.22.0",
+      "cachedJarFound": false,
+      "downloadCompleted": false,
+      "runningVersion": null
+    }
+  },
+  "configuration": {
+    "source": "firebase.json",
+    "authUrl": "http://127.0.0.1:9099",
+    "firestoreUrl": "http://127.0.0.1:8081",
+    "hubUrl": "http://127.0.0.1:4400",
+    "emulatorUiEnabled": false,
+    "singleProjectMode": true,
+    "explicitProjectArgument": "demo-learning-planner",
+    "isolatedCliConfiguration": true
+  },
+  "combinedStartup": {
+    "requestedEmulators": [
+      "auth",
+      "firestore"
+    ],
+    "attempts": 1,
+    "firestoreDownloadAttempts": 1,
+    "exitCode": 1,
+    "cliSession": 38594,
+    "requestUrl": "https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-firestore-emulator-v1.22.0.jar",
+    "error": "Failed to make request to https://storage.googleapis.com/firebase-preview-drop/emulator/cloud-firestore-emulator-v1.22.0.jar",
+    "httpStatusObserved": null,
+    "allStartedEmulatorsShutDownAfterFailure": true,
+    "retriesOrAlternativeProxyAttempts": 0
+  },
+  "networkPolicy": {
+    "observationsCurrent": true,
+    "state": "enforced",
+    "mode": "restricted",
+    "downloadHostInAllowedHosts": false,
+    "policyOrProxyChanged": false,
+    "note": "The CLI reported a failed request. No HTTP 403 or other HTTP response status was established."
+  },
+  "authOnlyStartup": {
+    "attempts": 1,
+    "cliSession": 73710,
+    "projectId": "demo-learning-planner",
+    "running": true,
+    "leftRunningForSeparateAuthorizedPreflightSmoke": true
+  },
+  "readOnlyProbes": {
+    "authRoot": {
+      "url": "http://127.0.0.1:9099/",
+      "method": "GET",
+      "httpStatus": 200,
+      "connected": true,
+      "authEmulator": {
+        "ready": true,
+        "docs": "https://firebase.google.com/docs/emulator-suite",
+        "apiSpec": "/emulator/openapi.json"
+      }
+    },
+    "emulatorHub": {
+      "url": "http://127.0.0.1:4400/emulators",
+      "method": "GET",
+      "httpStatus": 200,
+      "connected": true,
+      "emulators": {
+        "hub": {
+          "host": "127.0.0.1",
+          "port": 4400
+        },
+        "logging": {
+          "host": "127.0.0.1",
+          "port": 4500
+        },
+        "auth": {
+          "host": "127.0.0.1",
+          "port": 9099
+        }
+      }
+    },
+    "firestoreTcp": {
+      "host": "127.0.0.1",
+      "port": 8081,
+      "connected": false,
+      "observed": "not listening"
+    }
+  },
+  "safeguards": {
+    "localAuthOrFirestoreDataWriteRequests": 0,
+    "accountsCreated": 0,
+    "seedsExecuted": 0,
+    "productionFirebaseDataRequests": 0,
+    "envLocalReadOrChanged": false,
+    "globalCredentialsRead": false,
+    "tokensOrSecretsIncluded": false,
+    "scope": "These values describe this readiness check only."
+  },
+  "windowsPowerShellReproduction": {
+    "requirements": "Node 24 satisfies the repository requirement >=22.12.0; Java 21 or newer is required by this CLI.",
+    "commands": [
+      "node --version",
+      "java -version",
+      "npx.cmd --yes firebase-tools@15.34.2 --version",
+      "npx.cmd --yes firebase-tools@15.34.2 emulators:start --only \"auth,firestore\" --project demo-learning-planner --config firebase.json"
+    ],
+    "note": "Commands are provided for reproduction; a successful Windows start has not been performed by this readiness check."
+  },
+  "limitations": [
+    "Firestore was not available; no successful Firestore SDK, Rules, CRUD, seed or browser-data-path check is claimed.",
+    "HTTP 200 and emulator readiness JSON establish local service readiness, not cryptographic authentication of a deliberately impersonated local service.",
+    "No React/browser evaluation or performance measurement was performed."
+  ]
+}

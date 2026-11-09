@@ -8,6 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
+    "evaluation:init": "node --experimental-strip-types scripts/evaluation-init.mjs",
+    "evaluation:seed": "node --experimental-strip-types scripts/evaluation-data.mjs seed",
+    "evaluation:reset": "node --experimental-strip-types scripts/evaluation-data.mjs reset",
+    "evaluation:verify": "node --experimental-strip-types scripts/evaluation-data.mjs verify",
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",

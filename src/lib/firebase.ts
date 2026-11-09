@@ -1,5 +1,6 @@
 import { getApp, getApps, initializeApp } from 'firebase/app'
 import type { FirebaseApp, FirebaseOptions } from 'firebase/app'
+import { assertEvaluationEnv, assertEvaluationFirebaseOptions, evaluationMode } from '../../config/evaluation-policy'
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,6 +18,15 @@ function initializeFirebase(): {
   app: FirebaseApp | null
   configurationError: string | null
 } {
+  if (import.meta.env.MODE === evaluationMode) {
+    try {
+      // Evaluation is fail closed before any Firebase app or service is created.
+      assertEvaluationEnv(import.meta.env, import.meta.env.DEV === true)
+      for (const app of getApps()) assertEvaluationFirebaseOptions(app.options)
+    } catch {
+      return { app: null, configurationError: 'Die lokale Evaluationskonfiguration ist ungültig. Firebase wurde aus Sicherheitsgründen nicht initialisiert.' }
+    }
+  }
   // Storage and messaging settings are optional for Authentication.
   const requiredSettings = [
     firebaseConfig.apiKey,

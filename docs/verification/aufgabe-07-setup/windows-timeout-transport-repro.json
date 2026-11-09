@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "isolated-native-http-transport-reproduction",
+  "recordedAtUtc": "2026-11-09 10:05:43 UTC",
+  "timingNote": "Recording time after the two probes; their exact wall-clock timestamps were not captured.",
+  "sourceCommit": "b070f93a11a1b0213526b6293921abd0fe23e15f",
+  "runtime": "Node.js v24.19.0",
+  "classification": "Isolated loopback HTTP test servers; not Firebase or emulator integration.",
+  "method": "Loaded committed core with git show and a data-module import. Temporarily replaced node:http.request only in the test process to direct the transport to an ephemeral IPv4 loopback server; restored it afterward.",
+  "sourceFilesModified": false,
+  "emulatorRequests": 0,
+  "credentialFilesRead": false,
+  "fragmentedResponse": {
+    "configuredSocketIdleTimeoutMs": 3000,
+    "scheduledChunksAtMs": [
+      0,
+      1700,
+      3400
+    ],
+    "measuredElapsedMs": 3427,
+    "result": "resolved",
+    "conclusion": "The existing socket inactivity timeout does not enforce a 3000 ms total request deadline."
+  },
+  "prematureClose": {
+    "declaredContentLength": 100,
+    "partialResponseBytes": 1,
+    "scheduledSocketDestroyAtMs": 40,
+    "measuredElapsedMs": 52,
+    "errorCode": "evaluation/emulator-unavailable",
+    "hangReproduced": false,
+    "conclusion": "The real native HTTP client already emitted an error for this premature-close case."
+  },
+  "limitations": [
+    "No Windows execution or Windows seed timeout was reproduced.",
+    "No defect was found in the examined POST UTF-8 Content-Length and end(payload) framing.",
+    "The specific cause of the user's reported Windows timeout remains unconfirmed.",
+    "Additional aborted/close handling is defensive hardening, not a demonstrated fix for a real premature-close hang."
+  ]
+}
