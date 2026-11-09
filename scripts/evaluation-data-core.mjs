@@ -1,5 +1,6 @@
 import http from 'node:http'
 import { timingSafeEqual } from 'node:crypto'
+import { performance } from 'node:perf_hooks'
 
 export const EVALUATION_PROJECT = 'demo-learning-planner'
 export const EVALUATION_UID = 'eval07-d0'
@@ -7,6 +8,7 @@ export const EVALUATION_EMAIL = 'eval07-d0@example.test'
 export const EVALUATION_HOST = '127.0.0.1'
 export const EVALUATION_PORTS = Object.freeze({ auth: 9099, firestore: 8081, hub: 4400 })
 export const TASK_IDS = Object.freeze(['A01', 'A02', 'A03', 'A04', 'A05'])
+export const EVALUATION_REQUEST_TIMEOUT_MS = 3000
 const authBase = `/identitytoolkit.googleapis.com/v1/projects/${EVALUATION_PROJECT}/accounts`
 const database = `projects/${EVALUATION_PROJECT}/databases/(default)`
 const collection = `${database}/documents/users/${EVALUATION_UID}/tasks`
@@ -14,11 +16,12 @@ const authConfig = `/emulator/v1/projects/${EVALUATION_PROJECT}/config`
 const coveragePath = `/emulator/v1/projects/${EVALUATION_PROJECT}:ruleCoverage`
 
 export class EvaluationSetupError extends Error {
-  constructor(code) {
+  constructor(code, diagnostic) {
     // Never copy remote bodies, request bodies, tokens or passwords into errors.
     super(code)
     this.name = 'EvaluationSetupError'
     this.code = code
+    if (diagnostic) this.diagnostic = Object.freeze(diagnostic)
   }
 }
 
@@ -146,37 +149,110 @@ function assertRequestScope(request) {
   throw new EvaluationSetupError('evaluation/out-of-scope-request')
 }
 
-export function createLoopbackTransport() {
+// Only static templates may reach diagnostics: never raw paths, queries, account
+// identifiers, task IDs, request/response bodies, headers or native error text.
+function diagnosticTarget({ service, method, path }) {
+  const origin = `http://${EVALUATION_HOST}:${EVALUATION_PORTS[service]}`
+  let step
+  let endpoint
+  if (service === 'auth') {
+    if (path === '/') { step = 'auth-ready'; endpoint = '/' }
+    else if (path === authConfig) { step = 'auth-config'; endpoint = authConfig }
+    else if (path === `${authBase}:lookup`) { step = 'account-lookup'; endpoint = `${authBase}:lookup` }
+    else if (path === authBase) { step = 'account-create'; endpoint = authBase }
+    else { step = 'account-clear-name'; endpoint = `${authBase}:update` }
+  } else if (service === 'hub') { step = 'emulator-registry'; endpoint = '/emulators' }
+  else if (path === coveragePath) { step = 'firestore-coverage'; endpoint = coveragePath }
+  else if (method === 'GET') {
+    step = 'tasks-list'; endpoint = `/v1/${database}/documents/users/{evaluation-account}/tasks`
+  } else if (method === 'DELETE') {
+    step = 'task-delete'; endpoint = `/v1/${database}/documents/users/{evaluation-account}/tasks/{task}`
+  } else { step = 'task-create'; endpoint = `/v1/${database}/documents:commit` }
+  return { step, method, endpoint: origin + endpoint }
+}
+
+export function createLoopbackTransport({ onDiagnostic } = {}) {
+  let sequence = 0
   return async request => {
     assertRequestScope(request)
     const { service, method, path, body } = request
     const payload = body === undefined ? undefined : JSON.stringify(body)
+    const target = diagnosticTarget(request)
+    const requestNumber = ++sequence
+    const started = performance.now()
+    const report = event => {
+      // Diagnostics are observational and cannot change the transport contract.
+      try { onDiagnostic?.(Object.freeze(event)) } catch { /* No remote error text. */ }
+    }
+    report({ event: 'request-start', request: requestNumber, ...target, timeoutMs: EVALUATION_REQUEST_TIMEOUT_MS })
     return new Promise((resolve, reject) => {
-      const fail = code => reject(new EvaluationSetupError(code))
+      let outgoing
+      let settled = false
+      let phase = 'waiting-socket'
+      let receivedBytes = 0
+      let status = null
+      const diagnostic = () => ({ request: requestNumber, ...target, phase,
+        elapsedMs: Math.round(performance.now() - started),
+        timeoutMs: EVALUATION_REQUEST_TIMEOUT_MS, status, receivedBytes })
+      const fail = (code, nativeCode) => {
+        if (settled) return
+        settled = true
+        clearTimeout(deadline)
+        const details = diagnostic()
+        if (['ECONNREFUSED', 'ECONNRESET', 'ETIMEDOUT', 'EPIPE', 'EHOSTUNREACH', 'ENETUNREACH', 'EACCES', 'EPERM'].includes(nativeCode)) {
+          details.networkCode = nativeCode
+        }
+        report({ event: 'request-failed', code, ...details })
+        // Settle before destroy: synchronous error/close callbacks must not
+        // replace the original timeout classification or produce a second event.
+        reject(new EvaluationSetupError(code, details))
+        outgoing?.destroy?.()
+      }
+      // ClientRequest.setTimeout is only socket inactivity and does not bound
+      // connection setup or a trickling response. Keep the same 3000ms limit as
+      // one explicit deadline, starting before socket assignment.
+      const deadline = setTimeout(() => fail('evaluation/emulator-timeout'), EVALUATION_REQUEST_TIMEOUT_MS)
       // Native node:http uses neither HTTP(S)_PROXY nor redirects; the host and
       // ports cannot be supplied by environment variables, credentials or flags.
-      const outgoing = http.request({ hostname: EVALUATION_HOST, family: 4,
-        port: EVALUATION_PORTS[service], method, path, agent: false,
-        headers: { Authorization: 'Bearer owner', Accept: 'application/json',
-          ...(payload ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } : {}) },
-      }, response => {
-        let size = 0
-        const chunks = []
-        response.on('data', chunk => {
-          size += chunk.length
-          if (size > 8 * 1024 * 1024) { response.destroy(); fail('evaluation/response-too-large') }
-          else chunks.push(chunk)
+      try {
+        outgoing = http.request({ hostname: EVALUATION_HOST, family: 4,
+          port: EVALUATION_PORTS[service], method, path, agent: false,
+          headers: { Authorization: 'Bearer owner', Accept: 'application/json',
+            ...(payload ? { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) } : {}) },
+        }, response => {
+          response.on('error', error => fail('evaluation/emulator-unavailable', error?.code))
+          if (settled) { response.destroy(); return }
+          phase = 'reading-response'
+          status = Number.isInteger(response.statusCode) && response.statusCode >= 100 && response.statusCode <= 599 ? response.statusCode : null
+          const chunks = []
+          response.on('data', chunk => {
+            if (settled) return
+            receivedBytes += chunk.length
+            if (receivedBytes > 8 * 1024 * 1024) fail('evaluation/response-too-large')
+            else chunks.push(chunk)
+          })
+          response.on('aborted', () => fail('evaluation/emulator-unavailable'))
+          response.on('close', () => { if (!response.complete) fail('evaluation/emulator-unavailable') })
+          response.on('end', () => {
+            if (settled) return
+            if (status === null || status < 200 || status >= 300) return fail('evaluation/emulator-http-error')
+            const raw = Buffer.concat(chunks).toString('utf8')
+            let value
+            try { value = raw ? JSON.parse(raw) : {} } catch { fail('evaluation/invalid-emulator-response'); return }
+            settled = true
+            clearTimeout(deadline)
+            report({ event: 'request-complete', ...diagnostic() })
+            resolve(value)
+          })
         })
-        response.on('error', () => fail('evaluation/emulator-unavailable'))
-        response.on('end', () => {
-          if (response.statusCode < 200 || response.statusCode >= 300) return fail('evaluation/emulator-http-error')
-          const raw = Buffer.concat(chunks).toString('utf8')
-          try { resolve(raw ? JSON.parse(raw) : {}) } catch { fail('evaluation/invalid-emulator-response') }
+        outgoing.on('socket', socket => {
+          if (settled) return
+          phase = socket.connecting ? 'connecting' : 'waiting-headers'
+          socket.once('connect', () => { if (!settled) phase = 'waiting-headers' })
         })
-      })
-      outgoing.setTimeout(3000, () => { outgoing.destroy(); fail('evaluation/emulator-timeout') })
-      outgoing.on('error', () => fail('evaluation/emulator-unavailable'))
-      outgoing.end(payload)
+        outgoing.on('error', error => fail('evaluation/emulator-unavailable', error?.code))
+        outgoing.end(payload)
+      } catch { fail('evaluation/emulator-unavailable') }
     })
   }
 }
@@ -193,8 +269,9 @@ export function verifyBaseline(tasks, displayName, date) {
   return { total: 5, open: 3, inProgress: 1, done: 1, notDone: 4 }
 }
 
-export function createEvaluationClient({ transport = createLoopbackTransport() } = {}) {
-  const request = async value => { assertRequestScope(value); return transport(value) }
+export function createEvaluationClient({ transport, onDiagnostic } = {}) {
+  const send = transport ?? createLoopbackTransport({ onDiagnostic })
+  const request = async value => { assertRequestScope(value); return send(value) }
   async function checkEmulators() {
     const root = await request({ service: 'auth', method: 'GET', path: '/' })
     requireValue(root?.authEmulator?.ready === true && root.authEmulator.apiSpec === '/emulator/openapi.json', 'evaluation/auth-emulator-not-identified')

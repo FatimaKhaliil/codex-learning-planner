@@ -1,0 +1,39 @@
+{
+  "kind": "isolated-real-loopback-http-transport-test-not-firebase",
+  "observedAtUtc": "2026-11-09T10:09:21.131Z",
+  "requestMapping": "Test process maps the validated Auth root request to a temporary isolated loopback HTTP server.",
+  "responseFragmentsAtMs": [
+    0,
+    1700,
+    3400
+  ],
+  "result": "evaluation/emulator-timeout",
+  "elapsedMs": 3005,
+  "events": [
+    {
+      "event": "request-start",
+      "request": 1,
+      "step": "auth-ready",
+      "method": "GET",
+      "endpoint": "http://127.0.0.1:9099/",
+      "timeoutMs": 3000
+    },
+    {
+      "event": "request-failed",
+      "code": "evaluation/emulator-timeout",
+      "request": 1,
+      "step": "auth-ready",
+      "method": "GET",
+      "endpoint": "http://127.0.0.1:9099/",
+      "phase": "reading-response",
+      "elapsedMs": 3003,
+      "timeoutMs": 3000,
+      "status": 200,
+      "receivedBytes": 6
+    }
+  ],
+  "limitations": [
+    "No Windows execution or Firebase emulator persistence tested.",
+    "This proves the overall transport deadline; the Windows seed cause is still unconfirmed."
+  ]
+}

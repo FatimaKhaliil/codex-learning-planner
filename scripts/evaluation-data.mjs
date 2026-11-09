@@ -61,8 +61,14 @@ function writeJson(path, value, exclusive = false) {
 function parseArguments(args) {
   const [mode, ...rest] = args
   if (!['seed', 'reset', 'verify'].includes(mode)) fail('evaluation/usage-seed-reset-verify')
-  if (rest.length !== 0 && (rest.length !== 2 || rest[0] !== '--date')) fail('evaluation/usage-date-YYYY-MM-DD')
-  return { mode, date: rest[1] }
+  let date
+  let diagnose = false
+  for (let index = 0; index < rest.length; index++) {
+    if (rest[index] === '--diagnose' && !diagnose) diagnose = true
+    else if (rest[index] === '--date' && date === undefined && rest[index + 1] && !rest[index + 1].startsWith('--')) date = rest[++index]
+    else fail('evaluation/usage-date-YYYY-MM-DD-or-diagnose')
+  }
+  return { mode, date, diagnose }
 }
 
 function baselineDate(manifest, explicitDate, mode) {
@@ -76,7 +82,12 @@ function baselineDate(manifest, explicitDate, mode) {
 }
 
 async function main() {
-  const { mode, date: explicitDate } = parseArguments(process.argv.slice(2))
+  const { mode, date: explicitDate, diagnose } = parseArguments(process.argv.slice(2))
+  const trace = event => {
+    if (diagnose) process.stderr.write(`${JSON.stringify({ scope: 'local-emulator-setup-only', diagnostic: event })}\n`)
+  }
+  const stage = step => trace({ event: 'setup-stage', operation: mode, step })
+  stage('local-checks')
   // Share the immutable evaluation policy, but do not read .env.local (or any
   // .env file). The CLI's transport independently hardcodes its endpoints.
   assertEvaluationEnv(expectedEvaluationEnv)
@@ -88,8 +99,9 @@ async function main() {
   let account = readJson(accountFile)
   if (account) assertAccount(account)
   if (!account && mode !== 'seed') fail('evaluation/local-account-missing')
-  const client = createEvaluationClient()
+  const client = createEvaluationClient({ onDiagnostic: diagnose ? trace : undefined })
   if (mode === 'verify') {
+    stage('verify-baseline')
     const counts = await client.verify(date, account)
     process.stdout.write(`${JSON.stringify({ mode, baseline: 'D0', date, counts, environment: 'local-emulator-admin-read-only' })}\n`)
     return
@@ -98,17 +110,21 @@ async function main() {
   if (!account) {
     // Firestore MUST be ready before local credentials or an Auth user are
     // created. An already present UID/email without credentials is a collision.
+    stage('inspect-before-credentials')
     if ((await client.inspect()).accountExists) fail('evaluation/account-already-exists-without-local-credentials')
     account = { schemaVersion: 1, projectId: EVALUATION_PROJECT, uid: EVALUATION_UID,
       email: EVALUATION_EMAIL, password: randomBytes(32).toString('base64url') }
+    stage('write-local-account')
     writeJson(accountFile, account, true)
   }
+  stage('restore-baseline')
   const counts = await client.restore(mode, account, date, { requireAbsentAccount })
   const manifest = { schemaVersion: 1, baseline: 'D0', projectId: EVALUATION_PROJECT,
     uid: EVALUATION_UID, email: EVALUATION_EMAIL, timeZone: 'Europe/Berlin', date,
     taskIds: [...TASK_IDS], tasks: createBaseline(date), counts,
     preparedAt: new Date().toISOString(), environment: 'local-emulators-only',
     setupAccess: 'project-and-account-scoped-emulator-admin-rules-bypass' }
+  stage('write-baseline-manifest')
   writeJson(manifestFile, manifest)
   process.stdout.write(`${JSON.stringify({ mode, baseline: 'D0', date, counts,
     manifest: '.evaluation/baseline.json', credentials: '.evaluation/account.json',
@@ -118,6 +134,7 @@ async function main() {
 try { await main() } catch (error) {
   // Do not print stack/message/cause or remote responses, which can carry secrets.
   const code = error instanceof EvaluationSetupError ? error.code : 'evaluation/local-setup-failed'
-  process.stderr.write(`${JSON.stringify({ error: code, scope: 'local-emulator-setup-only' })}\n`)
+  process.stderr.write(`${JSON.stringify({ error: code, scope: 'local-emulator-setup-only',
+    ...(error instanceof EvaluationSetupError && error.diagnostic ? { diagnostic: error.diagnostic } : {}) })}\n`)
   process.exitCode = 1
 }

@@ -234,3 +234,73 @@ Die Ausführung wurde laut Hinweis der Entwicklerin durch das **Nutzungslimit un
 - Phase nach Wiederaufnahme: Endmesspunkt **09.11.2026, 08:15:45 UTC / 09:15:45 Europe/Berlin** nach Abschluss der inhaltlichen Prüfung. Seit 08:02:27 UTC sind **13 Minuten 18 Sekunden** belegt, darin der oben genannte Vorlauf von 2 Minuten 28 Sekunden; ab Umgebungsfreigabe 08:04:55 UTC sind es **10 Minuten 50 Sekunden**. Die abschließende Eintragung dieser Messung sowie Commit, Push und PR-Erstellung folgen danach und sind in diesem Intervall nicht enthalten.
 
 Die ausgewiesenen Intervalle sind verstrichene Interaktionszeiten einschließlich Toollaufzeiten, keine gemessene CPU- oder reine Schreibzeit. Eine exakte Gesamtarbeitsdauer beider Phasen ist wegen des nicht erfassten Endes der ersten Phase nicht rekonstruierbar.
+
+## Nachbesserung: Windows-Timeout diagnostizieren (09.11.2026)
+
+### Anlass und Beleglage
+
+Ausgangscommit dieser zusätzlichen Codex-Interaktion: `b070f93a11a1b0213526b6293921abd0fe23e15f`, bestehender Branch `eval/aufgabe-07-setup`, Arbeitsbaum zu Beginn sauber. Die Entwicklerin meldete für ihren Windows-Rechner laufende Auth-/Firestore-Emulatoren, vier HTTP-200-Endpunkte sowie Emulator-Check 145 ms, Account-Check 109 ms mit `accountExists: false` und Firestore-List 431 ms mit null Dokumenten. Dennoch scheiterte `evaluation:seed -- --date 2026-11-09` wiederholt mit `evaluation/emulator-timeout`, ohne Kontodatei oder Manifest. **Diese Windows-Werte wurden von der Entwicklerin berichtet, nicht in der Cloud gemessen.**
+
+Der konkrete Windows-Request, der ausläuft, war im bisherigen Fehlertext nicht erkennbar. Ein Windows-spezifischer Auslöser ist deshalb noch **nicht nachgewiesen**. Diese Änderung ergänzt die nötigen sicheren Messdaten und korrigiert einen separat reproduzierten Fehler in der Bedeutung der Requestfrist; sie behauptet keinen bereits erfolgreichen Windows-Seed.
+
+### Tatsächliche Ausführungsreihenfolge
+
+`evaluation-data.mjs` prüft zuerst Argumente, feste Demo-Policy, Git-Ignore und lokale Dateien. Bei fehlender Kontodatei wartet es anschließend vollständig auf `client.inspect()` aus `evaluation-data-core.mjs`:
+
+| Reihenfolge in `inspect()` | Diagnosekennung | Fester lokaler Request |
+| --- | --- | --- |
+| 1 | `auth-ready` | GET `http://127.0.0.1:9099/` |
+| 2 | `auth-config` | GET `http://127.0.0.1:9099/emulator/v1/projects/demo-learning-planner/config` |
+| 3 | `firestore-coverage` | GET `http://127.0.0.1:8081/emulator/v1/projects/demo-learning-planner:ruleCoverage` |
+| 4 | `emulator-registry` | GET `http://127.0.0.1:4400/emulators` |
+| 5 | `account-lookup` | POST `http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/projects/demo-learning-planner/accounts:lookup` |
+
+Erst nach erfolgreichem Abschluss und Ausschluss einer Kontokollision wird ein zufälliges Kennwort erzeugt und `.evaluation/account.json` geschrieben. Danach startet `restore()`: erneute Emulator-/Kontoprüfung, bei Bedarf Kontoanlage mit zusätzlichem Vorlauf vor dem Schreibzugriff, Account-Lookup und erst anschließend Firestore-List. Namensreset und die fünf Task-Schreibvorgänge behalten jeweils ihren eigenen vollständigen Vorlauf. Das Manifest entsteht erst nach erfolgreicher abschließender Verifikation.
+
+**Folgerung:** Ohne Kontodatei liegt der gemeldete Timeout vor Ende von `inspect()` und damit in einem der fünf obigen Requests, sofern kein externer Prozess die Datei entfernt hat. Eine schnelle separat getestete Firestore-Liste beweist nicht, dass dieser Vorlauf im fehlgeschlagenen Prozess erfolgreich war. Eine erfolgreiche HTTP-Statuszeile belegt auch noch keinen vollständig empfangenen Antwortkörper. Die 3000-ms-Grenze gilt pro HTTP-Request, nicht für den gesamten Seed mit seinen wiederholten Sicherheitsprüfungen.
+
+### Nachgewiesene Transportkorrektur und sichere Diagnose
+
+Der bisherige `ClientRequest.setTimeout(3000)` begrenzte **Socket-Inaktivität**. Er ist keine Gesamtfrist einschließlich Socketzuweisung/Verbindungsaufbau und wird durch empfangene Daten erneut verschoben. Ein unabhängiger Test des ursprünglichen Commits gegen einen isolierten lokalen HTTP-Server lieferte JSON-Fragmente nach 0, 1700 und 3400 ms: Der alte Transport akzeptierte die vollständige Antwort nach **3427 ms**. Eine Gesamtfrist von 3000 ms war damit nicht gegeben. Ein separater echter vorzeitiger Socketabbruch wurde dagegen nach 52 ms korrekt als Verbindungsfehler erkannt; ein solcher Fehler wird nicht als nachgewiesene Windows-Ursache ausgegeben.
+
+Korrektur: Ein expliziter Timer startet vor der Socketzuweisung und begrenzt den gesamten HTTP-Request weiterhin auf **3000 ms**. **Keine Erhöhung und keine automatische Wiederholung.** Fragmentdaten verlängern die Frist nicht. Bei Abschluss oder Fehler wird der Timer entfernt; das Ergebnis wird vor dem Zerstören des Requests einmalig festgelegt. Synchrone Folgefehler dürfen einen Timeout nicht umklassifizieren. Abgebrochene beziehungsweise unvollständig geschlossene Antworten werden ebenfalls behandelt.
+
+Der entsprechende neue Test gegen denselben Typ eines isolierten lokalen HTTP-Servers brach nach **3005 ms** ab; die Diagnose meldete `auth-ready`, `reading-response`, HTTP 200 und sechs empfangene Bytes. Das sind **reale lokale HTTP-Transportprüfungen mit einem Testserver**, keine Firebase-Integration und keine Windows-Messung. Die exakten Beobachtungen und Grenzen stehen in `windows-timeout-transport-repro.json` und `windows-timeout-deadline-regression.json` im Nachweisverzeichnis.
+
+Schon ohne Zusatzoption enthält ein Transportfehler jetzt eine sichere `diagnostic` mit Requestnummer, Schrittkennung, HTTP-Methode, statischer Endpunktvorlage, Phase, Laufzeit, 3000-ms-Frist, numerischem Status und Byteanzahl. Native Netzwerkfehler werden ausschließlich anhand einer festen Codeliste ausgegeben. Mit `--diagnose` kommen JSON-Zeilen für lokale Setup-Phasen sowie Request-Start/-Abschluss/-Fehler auf stderr hinzu. Die Ausgabe enthält **keine** Kennwörter, Tokens, Header, Request-/Response-Inhalte, E-Mail-Adressen, Windows-Benutzerpfade, tatsächlichen Task-IDs, Paginationstokens oder native Fehlermeldungen. Taskpfade werden als `{evaluation-account}` und `{task}` dargestellt; rohe URLs/Queries werden nicht übernommen.
+
+| Diagnosephase | Was die nächste Windows-Prüfung eingrenzt |
+| --- | --- |
+| `waiting-socket` | Noch keine Socketzuweisung beobachtet |
+| `connecting` | Lokaler TCP-Verbindungsaufbau noch nicht abgeschlossen |
+| `waiting-headers` | Verbunden, aber noch keine Antwortheader erhalten |
+| `reading-response` | Header erhalten, vollständiger Antwortkörper fehlt noch |
+
+Windows-Dateipfade, Git-/Dateirechte oder `chmod` würden an anderer Stelle als lokaler Setupfehler auffallen und erklären den bisherigen Transportfehlercode nicht unmittelbar. IPv4-Loopback, feste Ports, native HTTP-Anfragen ohne Proxy-Fallback und das bestehende UTF-8-`Content-Length`-Framing bleiben erhalten. Es gibt keinen belegten Anlass, Proxy, Firewall, Virenschutz oder eine konkrete Node-Windows-Version als Ursache zu benennen oder deren Einstellungen zu verändern. Erst die korrelierte neue Diagnose kann zeigen, in welcher Phase welcher Request tatsächlich ausläuft.
+
+### Regressionstests und tatsächlich ausgeführte Prüfungen
+
+- `npm test`: **80/80 bestanden**, einschließlich der bisherigen 62 Tests. Hinzu kommen drei echte CLI-Prozesstests ohne Netzwerk/Schreiboperationen sowie 15 Transportprüfungen einschließlich Untertests mit isolierten HTTP-Doubles und virtuellen Timern.
+- Transportabdeckung: Gesamtfrist vor Socketzuweisung, beim Connect, vor Headern und im Antwortkörper; fragmentierte Antworten; Timerbereinigung; einmaliger Abschluss; synchrone Fehler beim Zerstören; Abbruch; unverändertes UTF-8-Framing; feste Zieladressen und Geheimnisfreiheit auch bei sensiblen Rohpfaden/Queries oder nativen Fehlertexten.
+- CLI-Abdeckung: `--diagnose` vor/nach `--date`, Ablehnung doppelter/unbekannter Argumente, keine Reflexion der Argumentwerte und unveränderte stille Ausgabe ohne Diagnoseflag. Die verwendeten ungültigen Testdaten stoppen vor Netzwerk- und Kontozugriffen.
+- `npm run build` einschließlich TypeScript: erfolgreich. Kein produktiver Anwendungscode, keine Firebase-Regeln und keine Konfiguration mit Zugangsdaten geändert.
+- Echte Cloud-Negativprüfung: Auth-Root und Auth-Konfiguration HTTP 200; Request 3 bricht exakt bei `firestore-coverage`, `connecting`, `ECONNREFUSED` ab. Kontodatei und Manifest bleiben aus. Nachweis: `windows-timeout-negative-cli.json`.
+- Echte positive Firestore-Integration bleibt in dieser Cloud **blockiert**: Port 8081 nicht verfügbar, Downloadhost weiterhin nicht freigegeben; kein erneuter Downloadversuch. Die gemeldete Windows-Emulatorbereitschaft und eine erfolgreiche Windows-Wiederholung werden nicht durch Test-Doubles ersetzt.
+
+Geändert sind ausschließlich `scripts/evaluation-data-core.mjs`, `scripts/evaluation-data.mjs`, neue `tests/evaluation-transport.test.ts` und `tests/evaluation-cli.test.ts`, dieses Dokument sowie zusätzliche technische Nachweise. Die Scope-, Projekt-, Konto-, Passwortbindungs-, Hub- und Vorabprüfungen vor **jeder** Mutation bleiben bestehen. `.env.local` wird weder gelesen noch verändert. Keine Usability-Evaluation, kein Merge und kein Deployment.
+
+### Kurzer Windows-Neuversuch
+
+Auf dem aktualisierten Branch, bei weiter laufenden Emulatoren im Repository ausführen:
+
+```powershell
+npm.cmd run evaluation:seed -- --date 2026-11-09 --diagnose
+```
+
+Bei erneutem Fehler enthält die letzte JSON-Fehlerzeile den entscheidenden Schritt, Endpunkt und die Phase; nicht auf höhere Timeouts oder produktive Werte ausweichen. Das Diagnoseflag ändert die Sicherheitsprüfungen und den normalen Seed-Ablauf nicht. Bei erfolgreichem Seed anschließend:
+
+```powershell
+npm.cmd run evaluation:verify -- --diagnose
+```
+
+Das ist eine technische Setup-Verifikation, noch kein Evaluationsdurchlauf. **Separat gemessene Nachbesserungsinteraktion:** 09.11.2026, 10:01:40 UTC / 11:01:40 Europe/Berlin bis 10:14:41 UTC / 11:14:41 Europe/Berlin: **13 Minuten 1 Sekunden** einschließlich Analyse, Toollaufzeiten, Implementierung, Tests und Dokumentationsprüfung. Die abschließende Zeiteintragung und Git-/PR-Veröffentlichung erfolgen anschließend. Die bisherigen Messintervalle bleiben unverändert.

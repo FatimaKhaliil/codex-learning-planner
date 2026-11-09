@@ -1,0 +1,124 @@
+{
+  "kind": "real-auth-and-missing-firestore-cli-diagnostic-smoke",
+  "observedAtUtc": "2026-11-09T10:10:26.951Z",
+  "exitCode": 1,
+  "events": [
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "setup-stage",
+        "operation": "seed",
+        "step": "local-checks"
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "setup-stage",
+        "operation": "seed",
+        "step": "inspect-before-credentials"
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "request-start",
+        "request": 1,
+        "step": "auth-ready",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:9099/",
+        "timeoutMs": 3000
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "request-complete",
+        "request": 1,
+        "step": "auth-ready",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:9099/",
+        "phase": "reading-response",
+        "elapsedMs": 27,
+        "timeoutMs": 3000,
+        "status": 200,
+        "receivedBytes": 149
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "request-start",
+        "request": 2,
+        "step": "auth-config",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:9099/emulator/v1/projects/demo-learning-planner/config",
+        "timeoutMs": 3000
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "request-complete",
+        "request": 2,
+        "step": "auth-config",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:9099/emulator/v1/projects/demo-learning-planner/config",
+        "phase": "reading-response",
+        "elapsedMs": 18,
+        "timeoutMs": 3000,
+        "status": 200,
+        "receivedBytes": 99
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "request-start",
+        "request": 3,
+        "step": "firestore-coverage",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:8081/emulator/v1/projects/demo-learning-planner:ruleCoverage",
+        "timeoutMs": 3000
+      }
+    },
+    {
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "event": "request-failed",
+        "code": "evaluation/emulator-unavailable",
+        "request": 3,
+        "step": "firestore-coverage",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:8081/emulator/v1/projects/demo-learning-planner:ruleCoverage",
+        "phase": "connecting",
+        "elapsedMs": 3,
+        "timeoutMs": 3000,
+        "status": null,
+        "receivedBytes": 0,
+        "networkCode": "ECONNREFUSED"
+      }
+    },
+    {
+      "error": "evaluation/emulator-unavailable",
+      "scope": "local-emulator-setup-only",
+      "diagnostic": {
+        "request": 3,
+        "step": "firestore-coverage",
+        "method": "GET",
+        "endpoint": "http://127.0.0.1:8081/emulator/v1/projects/demo-learning-planner:ruleCoverage",
+        "phase": "connecting",
+        "elapsedMs": 3,
+        "timeoutMs": 3000,
+        "status": null,
+        "receivedBytes": 0,
+        "networkCode": "ECONNREFUSED"
+      }
+    }
+  ],
+  "accountFileCreated": false,
+  "baselineFileCreated": false,
+  "limitations": [
+    "Real Auth responses only; positive Firestore integration and the Windows symptom remain unverified."
+  ]
+}
